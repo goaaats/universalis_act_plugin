@@ -27,7 +27,7 @@ using FFXIV_ACT_Plugin;
 
 namespace UniversalisPlugin
 {
-	public class PluginSample : UserControl, IActPluginV1
+	public class UniversalisPluginControl : UserControl, IActPluginV1
 	{
 		#region Designer Created Code (Avoid editing)
 		/// <summary> 
@@ -98,7 +98,7 @@ namespace UniversalisPlugin
             this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
-            this.Name = "PluginSample";
+            this.Name = "UniversalisPluginControl";
             this.Size = new System.Drawing.Size(686, 384);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
@@ -113,7 +113,7 @@ namespace UniversalisPlugin
         private System.Windows.Forms.Label label1;
 
 		#endregion
-		public PluginSample()
+		public UniversalisPluginControl()
 		{
 			InitializeComponent();
 		}
@@ -128,6 +128,10 @@ namespace UniversalisPlugin
 
         public uint CurrentWorldId => FfxivPlugin.DataRepository.GetCombatantList()
             .First(c => c.ID == FfxivPlugin.DataRepository.GetCurrentPlayerID()).CurrentWorldID;
+        public ulong LocalContentId;
+
+        private List<MarketBoardItemRequest> _marketBoardRequests = new List<MarketBoardItemRequest>();
+        private IMarketBoardUploader _uploader;
 
         #region IActPluginV1 Members
 		public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
@@ -158,7 +162,7 @@ namespace UniversalisPlugin
 
                 FfxivPlugin.DataSubscription.NetworkReceived += DataSubscriptionOnNetworkReceived;
 
-                uploader = new UniversalisMarketBoardUploader(this);
+                _uploader = new UniversalisMarketBoardUploader(this);
                 Log("Universalis plugin loaded.");
                 lblStatus.Text = "Plugin Started";
             }
@@ -169,21 +173,17 @@ namespace UniversalisPlugin
             }
         }
 
-        private List<MarketBoardItemRequest> marketBoardRequests = new List<MarketBoardItemRequest>();
-        private IMarketBoardUploader uploader;
-        public ulong LocalContentId;
+        public void DeInitPlugin()
+		{
+			// Unsubscribe from any events you listen to when exiting!
+            FfxivPlugin.DataSubscription.NetworkReceived -= DataSubscriptionOnNetworkReceived;
 
-        private static bool CheckNeedsUpdate()
-        {
-            using (var client = new WebClient())
-            {
-                var remoteVersion =
-                    client.DownloadString(
-                        "https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/version");
+			SaveSettings();
+			lblStatus.Text = "Plugin Exited";
+		}
+		#endregion
 
-                return !remoteVersion.StartsWith(Util.GetAssemblyVersion());
-            }
-        }
+        #region FFXIV plugin handling
 
         private void DataSubscriptionOnNetworkReceived(string connection, long epoch, byte[] message)
         {
@@ -201,7 +201,7 @@ namespace UniversalisPlugin
                 var catalogId = (uint) BitConverter.ToInt32(message, 0x20);
                 var amount = message[0x2B];
 
-                marketBoardRequests.Add(new MarketBoardItemRequest
+                _marketBoardRequests.Add(new MarketBoardItemRequest
                 {
                     CatalogId = catalogId,
                     AmountToArrive = amount,
@@ -218,7 +218,7 @@ namespace UniversalisPlugin
                 var listing = MarketBoardCurrentOfferings.Read(message.Skip(0x20).ToArray());
 
                 var request =
-                    this.marketBoardRequests.LastOrDefault(
+                    this._marketBoardRequests.LastOrDefault(
                         r => r.CatalogId == listing.ItemListings[0].CatalogId && !r.IsDone);
 
                 if (request == null)
@@ -264,7 +264,7 @@ namespace UniversalisPlugin
                     Log($"Market Board request finished, starting upload: request#{request.ListingsRequestId} item#{request.CatalogId} amount#{request.AmountToArrive}");
                     try
                     {
-                        this.uploader.Upload(request);
+                        this._uploader.Upload(request);
                     }
                     catch (Exception ex)
                     {
@@ -279,7 +279,7 @@ namespace UniversalisPlugin
             {
                 var listing = MarketBoardHistory.Read(message.Skip(0x20).ToArray());
 
-                var request = this.marketBoardRequests.LastOrDefault(r => r.CatalogId == listing.CatalogId);
+                var request = this._marketBoardRequests.LastOrDefault(r => r.CatalogId == listing.CatalogId);
 
                 if (request == null)
                 {
@@ -325,24 +325,27 @@ namespace UniversalisPlugin
             return (FFXIV_ACT_Plugin.FFXIV_ACT_Plugin) ffxivPlugin;
         }
 
+        #endregion
+
+        #region Miscellaneous
+
         public void Log(string text) => logTextBox.AppendText($"{text}\n");
 
-        public void DeInitPlugin()
-		{
-			// Unsubscribe from any events you listen to when exiting!
-			ActGlobals.oFormActMain.AfterCombatAction -= oFormActMain_AfterCombatAction;
+        private static bool CheckNeedsUpdate()
+        {
+            using (var client = new WebClient())
+            {
+                var remoteVersion =
+                    client.DownloadString(
+                        "https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/version");
 
-			SaveSettings();
-			lblStatus.Text = "Plugin Exited";
-		}
-		#endregion
+                return !remoteVersion.StartsWith(Util.GetAssemblyVersion());
+            }
+        }
 
-		void oFormActMain_AfterCombatAction(bool isImport, CombatActionEventArgs actionInfo)
-		{
-			throw new NotImplementedException();
-		}
+        #endregion
 
-		void LoadSettings()
+        void LoadSettings()
 		{
 			// Add any controls you want to save the state of
 			//xmlSettings.AddControlSetting(textBox1.Name, textBox1);

@@ -14,9 +14,9 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
         //private const string ApiBase = "https://127.0.0.1:443";
         private const string ApiKey = "CiAQfpfIK6eDcBLRUSv1rp6neR7MsWsRkrhHvzBH";
 
-        private UniversalisPlugin.PluginSample dalamud;
+        private UniversalisPlugin.UniversalisPluginControl dalamud;
 
-        public UniversalisMarketBoardUploader(UniversalisPlugin.PluginSample dalamud) {
+        public UniversalisMarketBoardUploader(UniversalisPlugin.UniversalisPluginControl dalamud) {
             this.dalamud = dalamud;
         }
 
