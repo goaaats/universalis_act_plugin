@@ -42,7 +42,7 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                         CreatorId = marketBoardItemListing.ArtisanId,
                         CreatorName = marketBoardItemListing.PlayerName,
                         OnMannequin = marketBoardItemListing.OnMannequin,
-                        LastReviewTime = Util.DateTimeToUnixTimestamp(marketBoardItemListing.LastReviewTime),
+                        LastReviewTime = ((DateTimeOffset) marketBoardItemListing.LastReviewTime).ToUnixTimeSeconds(),
                         PricePerUnit = marketBoardItemListing.PricePerUnit,
                         Quantity = marketBoardItemListing.ItemQuantity,
                         RetainerCity = marketBoardItemListing.RetainerCityId
@@ -60,7 +60,7 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
 
                 var upload = JsonConvert.SerializeObject(listingsRequestObject);
                 client.UploadString(ApiBase + $"/upload/{ApiKey}", "POST", upload);
-                this.dalamud.Log(upload);
+                //this.dalamud.Log(upload);
 
                 var historyRequestObject = new UniversalisHistoryUploadRequest();
                 historyRequestObject.WorldId = (int) this.dalamud.CurrentWorldId;
@@ -76,7 +76,7 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                         OnMannequin = marketBoardHistoryListing.OnMannequin,
                         PricePerUnit = marketBoardHistoryListing.SalePrice,
                         Quantity = marketBoardHistoryListing.Quantity,
-                        Timestamp = Util.DateTimeToUnixTimestamp(marketBoardHistoryListing.PurchaseTime)
+                        Timestamp = ((DateTimeOffset) marketBoardHistoryListing.PurchaseTime).ToUnixTimeSeconds()
                     });
                 }
 
@@ -84,9 +84,9 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
 
                 var historyUpload = JsonConvert.SerializeObject(historyRequestObject);
                 client.UploadString(ApiBase + $"/upload/{ApiKey}", "POST", historyUpload);
-                this.dalamud.Log(historyUpload);
+                //this.dalamud.Log(historyUpload);
 
-                this.dalamud.Log($"Universalis data upload for item#{request.CatalogId} completed.");
+                this.dalamud.Log($"Universalis data upload for item#{request.CatalogId} to world#{historyRequestObject.WorldId} completed.");
             }
         }
     }

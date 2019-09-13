@@ -43,7 +43,7 @@ namespace Dalamud.Game.Network.Structures
                         var listingEntry = new MarketBoardHistoryListing();
 
                         listingEntry.SalePrice = reader.ReadUInt32();
-                        listingEntry.PurchaseTime = ((DateTimeOffset) Util.UnixTimeStampToDateTime(reader.ReadUInt32())).UtcDateTime;
+                        listingEntry.PurchaseTime = DateTimeOffset.FromUnixTimeSeconds(reader.ReadUInt32()).UtcDateTime;
                         listingEntry.Quantity = reader.ReadUInt32();
                         listingEntry.IsHq = reader.ReadBoolean();
 

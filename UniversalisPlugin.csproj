@@ -63,34 +63,15 @@
     <Reference Include="Costura, Version=4.1.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
       <HintPath>packages\Costura.Fody.4.1.0\lib\net40\Costura.dll</HintPath>
     </Reference>
-    <Reference Include="FFXIV_ACT_Plugin">
-      <HintPath>..\..\..\AppData\Roaming\Advanced Combat Tracker\Plugins\FFXIV_ACT_Plugin.dll</HintPath>
+    <Reference Include="FFXIV_ACT_Plugin, Version=2.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>SDK\FFXIV_ACT_Plugin.dll</HintPath>
     </Reference>
-    <Reference Include="FFXIV_ACT_Plugin.Common">
-      <HintPath>..\..\..\AppData\Roaming\Advanced Combat Tracker\Plugins\SDK\FFXIV_ACT_Plugin.Common.dll</HintPath>
+    <Reference Include="FFXIV_ACT_Plugin.Common, Version=2.0.2.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>SDK\FFXIV_ACT_Plugin.Common.dll</HintPath>
     </Reference>
-    <Reference Include="FFXIV_ACT_Plugin.Config">
-      <HintPath>..\..\..\AppData\Roaming\Advanced Combat Tracker\Plugins\SDK\FFXIV_ACT_Plugin.Config.dll</HintPath>
-    </Reference>
-    <Reference Include="FFXIV_ACT_Plugin.LogFile">
-      <HintPath>..\..\..\AppData\Roaming\Advanced Combat Tracker\Plugins\SDK\FFXIV_ACT_Plugin.LogFile.dll</HintPath>
-    </Reference>
-    <Reference Include="FFXIV_ACT_Plugin.Memory">
-      <HintPath>..\..\..\AppData\Roaming\Advanced Combat Tracker\Plugins\SDK\FFXIV_ACT_Plugin.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="FFXIV_ACT_Plugin.Network">
-      <HintPath>..\..\..\AppData\Roaming\Advanced Combat Tracker\Plugins\SDK\FFXIV_ACT_Plugin.Network.dll</HintPath>
-    </Reference>
-    <Reference Include="FFXIV_ACT_Plugin.Overlay">
-      <HintPath>..\..\..\AppData\Roaming\Advanced Combat Tracker\Plugins\SDK\FFXIV_ACT_Plugin.Overlay.dll</HintPath>
-    </Reference>
-    <Reference Include="FFXIV_ACT_Plugin.Parse">
-      <HintPath>..\..\..\AppData\Roaming\Advanced Combat Tracker\Plugins\SDK\FFXIV_ACT_Plugin.Parse.dll</HintPath>
-    </Reference>
-    <Reference Include="FFXIV_ACT_Plugin.Resource">
-      <HintPath>..\..\..\AppData\Roaming\Advanced Combat Tracker\Plugins\SDK\FFXIV_ACT_Plugin.Resource.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json">
       <HintPath>packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -133,6 +114,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Resources\universalis_bodge.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('packages\Fody.6.0.0\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

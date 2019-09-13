@@ -24,9 +24,7 @@ namespace UniversalisPlugin
 
         public static string GetAssemblyVersion()
         {
-            var assembly = typeof(Util).Assembly;
-            var fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-            return fvi.FileVersion;
+            return typeof(Util).Assembly.GetName().Version.ToString();
         }
     }
 }
