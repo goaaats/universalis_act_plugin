@@ -15,7 +15,7 @@ namespace UniversalisPlugin
         public short MarketBoardOfferings = 0x13C;
         public short MarketBoardHistory = 0x140;
 
-        private static readonly Uri DefinitionStoreUrl = new Uri("https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/definitions.json");
+        private static readonly Uri DefinitionStoreUrl = new Uri("https://ffxivmb.com/definitions.json");
 
         public static string GetJson() => JsonConvert.SerializeObject(new Definitions());
 

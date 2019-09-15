@@ -19,10 +19,11 @@ using Dalamud.Game.Network.MarketBoardUploaders;
 using Dalamud.Game.Network.Structures;
 using Dalamud.Game.Network.Universalis.MarketBoardUploaders;
 using FFXIV_ACT_Plugin;
+using UniversalisPlugin.MarketBoardUploaders.Universalis;
 
-[assembly: AssemblyTitle("Universalis ACT plugin")]
-[assembly: AssemblyDescription("ACT plugin that automatically uploads market board data to universalis.app")]
-[assembly: AssemblyCompany("goatsoft")]
+[assembly: AssemblyTitle("FFXIVMB ACT plugin")]
+[assembly: AssemblyDescription("ACT plugin that automatically uploads market board data to FFXIVMB.com, forked from Universalis.")]
+[assembly: AssemblyCompany("purveyor")]
 [assembly: AssemblyVersion("1.0.0.0")]
 
 namespace UniversalisPlugin
@@ -56,30 +57,29 @@ namespace UniversalisPlugin
 		/// </summary>
 		private void InitializeComponent()
 		{
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UniversalisPluginControl));
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.logTextBox = new System.Windows.Forms.RichTextBox();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(91, 28);
+            this.label1.Location = new System.Drawing.Point(106, 25);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(200, 13);
+            this.label1.Size = new System.Drawing.Size(194, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Thank you for contributing to Universalis!";
+            this.label1.Text = "Thank you for contributing to FFXIVMB!";
             // 
             // pictureBox1
             // 
-            this.pictureBox1.BackgroundImage = global::UniversalisPlugin.Properties.Resources.universalis_bodge;
-            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox1.InitialImage = null;
-            this.pictureBox1.Location = new System.Drawing.Point(18, 53);
+            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(361, 158);
-            this.pictureBox1.TabIndex = 2;
+            this.pictureBox1.Size = new System.Drawing.Size(100, 50);
+            this.pictureBox1.TabIndex = 4;
             this.pictureBox1.TabStop = false;
             // 
             // logTextBox
@@ -90,11 +90,22 @@ namespace UniversalisPlugin
             this.logTextBox.Size = new System.Drawing.Size(361, 152);
             this.logTextBox.TabIndex = 3;
             this.logTextBox.Text = "";
+            this.logTextBox.TextChanged += new System.EventHandler(this.LogTextBox_TextChanged);
             // 
-            // PluginSample
+            // richTextBox1
+            // 
+            this.richTextBox1.Location = new System.Drawing.Point(423, 232);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.Size = new System.Drawing.Size(238, 137);
+            this.richTextBox1.TabIndex = 5;
+            this.richTextBox1.Text = resources.GetString("richTextBox1.Text");
+            this.richTextBox1.TextChanged += new System.EventHandler(this.RichTextBox1_TextChanged);
+            // 
+            // UniversalisPluginControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
@@ -110,6 +121,7 @@ namespace UniversalisPlugin
 
         private PictureBox pictureBox1;
         private RichTextBox logTextBox;
+        private RichTextBox richTextBox1;
         private System.Windows.Forms.Label label1;
 
 		#endregion
@@ -142,28 +154,28 @@ namespace UniversalisPlugin
 			xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
 			LoadSettings();
 
-            pluginScreenSpace.Text = "Universalis";
+            pluginScreenSpace.Text = "FFXIVMB";
 
             Log(Definitions.GetJson());
 
             try
             {
-                if (CheckNeedsUpdate())
-                {
-                    MessageBox.Show(
-                        "The Universalis plugin needs to be updated. Please download an updated version from the GitHub releases page",
-                        "Universalis plugin update", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                    Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
-                    return;
-                }
+                //if (CheckNeedsUpdate())
+                //{
+                //    MessageBox.Show(
+                //        "The FFXIVMB plugin needs to be updated. Please download an updated version from the FFXIVMB website",
+                //        "FFXIVMB plugin update", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                //    Process.Start("https://ffxivmb.com/Downloads");
+                //    return;
+                //}
 
                 _definitions = Definitions.Get();
                 FfxivPlugin = GetFfxivPlugin();
 
                 FfxivPlugin.DataSubscription.NetworkReceived += DataSubscriptionOnNetworkReceived;
 
-                _uploader = new UniversalisMarketBoardUploader(this);
-                Log("Universalis plugin loaded.");
+                _uploader = new FFXIVMBUploader(this);
+                Log("FFXIVMB plugin loaded.");
                 lblStatus.Text = "Plugin Started";
             }
             catch (Exception ex)
@@ -320,7 +332,7 @@ namespace UniversalisPlugin
             }
 
             if (ffxivPlugin == null)
-                throw new Exception("Could not find FFXIV plugin. Make sure that it is loaded before Universalis.");
+                throw new Exception("Could not find FFXIV plugin. Make sure that it is loaded before FFXIVMB ACT plugin.");
 
             return (FFXIV_ACT_Plugin.FFXIV_ACT_Plugin) ffxivPlugin;
         }
@@ -331,17 +343,17 @@ namespace UniversalisPlugin
 
         public void Log(string text) => logTextBox.AppendText($"{text}\n");
 
-        private static bool CheckNeedsUpdate()
-        {
-            using (var client = new WebClient())
-            {
-                var remoteVersion =
-                    client.DownloadString(
-                        "https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/version");
+        //private static bool CheckNeedsUpdate()
+        //{
+        //    using (var client = new WebClient())
+        //    {
+        //        var remoteVersion =
+        //            client.DownloadString(
+        //                "https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/version");
 
-                return !remoteVersion.StartsWith(Util.GetAssemblyVersion());
-            }
-        }
+        //        return !remoteVersion.StartsWith(Util.GetAssemblyVersion());
+        //    }
+        //}
 
         #endregion
 
@@ -392,5 +404,15 @@ namespace UniversalisPlugin
 			xWriter.Flush();    // Flush the file buffer to disk
 			xWriter.Close();
 		}
-	}
+
+        private void LogTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void RichTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
 }
