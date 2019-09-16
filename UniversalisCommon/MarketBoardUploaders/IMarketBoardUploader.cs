@@ -9,5 +9,7 @@ namespace Dalamud.Game.Network.MarketBoardUploaders
 {
     interface IMarketBoardUploader {
         void Upload(MarketBoardItemRequest itemRequest);
+
+        void UploadCrafterName(ulong contentId, string name);
     }
 }

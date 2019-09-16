@@ -2,6 +2,7 @@
   <Costura>
   	<ExcludeAssemblies>
         FFXIV_ACT_Plugin
+        FFXIV_ACT_Plugin.Common
     </ExcludeAssemblies>
   </Costura>
 </Weavers>

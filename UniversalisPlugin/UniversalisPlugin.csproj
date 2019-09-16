@@ -71,9 +71,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>SDK\FFXIV_ACT_Plugin.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -81,26 +78,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Definitions.cs" />
-    <Compile Include="MarketBoardItemRequest.cs" />
-    <Compile Include="MarketBoardUploaders\IMarketBoardUploader.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisHistoryEntry.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisHistoryUploadRequest.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisItemListingsEntry.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisItemListingsUploadRequest.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisItemMateria.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisMarketBoardUploader.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Structures\MarketBoardCurrentOfferings.cs" />
-    <Compile Include="Structures\MarketBoardHistory.cs" />
     <Compile Include="UniversalisPluginControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -114,6 +99,12 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Resources\universalis_bodge.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UniversalisCommon\UniversalisCommon.csproj">
+      <Project>{a9bec0d6-462c-458a-a42a-e0440e3552aa}</Project>
+      <Name>UniversalisCommon</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('packages\Fody.6.0.0\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

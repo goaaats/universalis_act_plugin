@@ -1,24 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Data;
 using System.Diagnostics;
-using System.Text;
-using System.Windows.Forms;
-using Advanced_Combat_Tracker;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
 using System.Xml;
-using Dalamud.Game.Network;
-using Dalamud.Game.Network.MarketBoardUploaders;
-using Dalamud.Game.Network.Structures;
-using Dalamud.Game.Network.Universalis.MarketBoardUploaders;
-using FFXIV_ACT_Plugin;
+using Advanced_Combat_Tracker;
+using UniversalisCommon;
 
 [assembly: AssemblyTitle("Universalis ACT plugin")]
 [assembly: AssemblyDescription("ACT plugin that automatically uploads market board data to universalis.app")]
@@ -27,45 +18,44 @@ using FFXIV_ACT_Plugin;
 
 namespace UniversalisPlugin
 {
-	public class UniversalisPluginControl : UserControl, IActPluginV1
-	{
-		#region Designer Created Code (Avoid editing)
-		/// <summary> 
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.IContainer components = null;
+    public class UniversalisPluginControl : UserControl, IActPluginV1
+    {
+        #region Designer Created Code (Avoid editing)
 
-		/// <summary> 
-		/// Clean up any resources being used.
-		/// </summary>
-		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing && (components != null))
-			{
-				components.Dispose();
-			}
-			base.Dispose(disposing);
-		}
+        /// <summary>
+        ///     Required designer variable.
+        /// </summary>
+        private readonly IContainer components = null;
 
-		#region Component Designer generated code
+        /// <summary>
+        ///     Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && components != null) components.Dispose();
+            base.Dispose(disposing);
+        }
 
-		/// <summary> 
-		/// Required method for Designer support - do not modify 
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
+        #region Component Designer generated code
+
+        /// <summary>
+        ///     Required method for Designer support - do not modify
+        ///     the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.logTextBox = new System.Windows.Forms.RichTextBox();
+            this.uploadedItemsLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(91, 28);
+            this.label1.Location = new System.Drawing.Point(91, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(200, 13);
             this.label1.TabIndex = 0;
@@ -91,10 +81,21 @@ namespace UniversalisPlugin
             this.logTextBox.TabIndex = 3;
             this.logTextBox.Text = "";
             // 
-            // PluginSample
+            // uploadedItemsLabel
+            // 
+            this.uploadedItemsLabel.AutoSize = true;
+            this.uploadedItemsLabel.Location = new System.Drawing.Point(141, 29);
+            this.uploadedItemsLabel.Name = "uploadedItemsLabel";
+            this.uploadedItemsLabel.Size = new System.Drawing.Size(93, 13);
+            this.uploadedItemsLabel.TabIndex = 4;
+            this.uploadedItemsLabel.Text = "Uploaded Items: 0";
+            this.uploadedItemsLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // UniversalisPluginControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.uploadedItemsLabel);
             this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
@@ -104,47 +105,47 @@ namespace UniversalisPlugin
             this.ResumeLayout(false);
             this.PerformLayout();
 
-		}
+        }
 
         #endregion
 
         private PictureBox pictureBox1;
         private RichTextBox logTextBox;
-        private System.Windows.Forms.Label label1;
+        private Label uploadedItemsLabel;
+        private Label label1;
 
-		#endregion
-		public UniversalisPluginControl()
-		{
-			InitializeComponent();
-		}
+        #endregion
 
-		Label lblStatus;    // The status label that appears in ACT's Plugin tab
-		string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, "Config\\PluginSample.config.xml");
-		SettingsSerializer xmlSettings;
+        public UniversalisPluginControl()
+        {
+            InitializeComponent();
+        }
 
-        private Definitions _definitions;
+        private Label lblStatus; // The status label that appears in ACT's Plugin tab
 
-        public FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FfxivPlugin;
+        private readonly string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName,
+            "Config\\PluginSample.config.xml");
 
-        public uint CurrentWorldId => FfxivPlugin.DataRepository.GetCombatantList()
-            .First(c => c.ID == FfxivPlugin.DataRepository.GetCurrentPlayerID()).CurrentWorldID;
-        public ulong LocalContentId;
+        private SettingsSerializer xmlSettings;
 
-        private List<MarketBoardItemRequest> _marketBoardRequests = new List<MarketBoardItemRequest>();
-        private IMarketBoardUploader _uploader;
+        public object FfxivPlugin;
+
+        private const string ApiKey = "CiAQfpfIK6eDcBLRUSv1rp6neR7MsWsRkrhHvzBH";
+        private PacketProcessor _universalisPacketProcessor;
+
+        private int _uploadCount = 0;
 
         #region IActPluginV1 Members
-		public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
-		{
-			lblStatus = pluginStatusText;   // Hand the status label's reference to our local var
-			pluginScreenSpace.Controls.Add(this);   // Add this UserControl to the tab ACT provides
-			this.Dock = DockStyle.Fill; // Expand the UserControl to fill the tab's client space
-			xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
-			LoadSettings();
+
+        public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
+        {
+            lblStatus = pluginStatusText; // Hand the status label's reference to our local var
+            pluginScreenSpace.Controls.Add(this); // Add this UserControl to the tab ACT provides
+            Dock = DockStyle.Fill; // Expand the UserControl to fill the tab's client space
+            xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
+            LoadSettings();
 
             pluginScreenSpace.Text = "Universalis";
-
-            Log(Definitions.GetJson());
 
             try
             {
@@ -157,12 +158,17 @@ namespace UniversalisPlugin
                     return;
                 }
 
-                _definitions = Definitions.Get();
                 FfxivPlugin = GetFfxivPlugin();
 
-                FfxivPlugin.DataSubscription.NetworkReceived += DataSubscriptionOnNetworkReceived;
+                var subs = FfxivPlugin.GetType().GetProperty("DataSubscription").GetValue(FfxivPlugin, null);
 
-                _uploader = new UniversalisMarketBoardUploader(this);
+                var recvDeleType = typeof(FFXIV_ACT_Plugin.Common.NetworkReceivedDelegate);
+                var recvDelegate = Delegate.CreateDelegate(recvDeleType, (object)this, "DataSubscriptionOnNetworkReceived", true);
+                subs.GetType().GetEvent("NetworkReceived").AddEventHandler(subs, recvDelegate);
+
+                _universalisPacketProcessor = new PacketProcessor(ApiKey);
+                _universalisPacketProcessor.Log += (sender, message) => Log(message);
+
                 Log("Universalis plugin loaded.");
                 lblStatus.Text = "Plugin Started";
             }
@@ -174,162 +180,62 @@ namespace UniversalisPlugin
         }
 
         public void DeInitPlugin()
-		{
-			// Unsubscribe from any events you listen to when exiting!
-            FfxivPlugin.DataSubscription.NetworkReceived -= DataSubscriptionOnNetworkReceived;
+        {
+            // Unsubscribe from any events you listen to when exiting!
+            var subs = FfxivPlugin.GetType().GetProperty("DataSubscription").GetValue(FfxivPlugin, null);
 
-			SaveSettings();
-			lblStatus.Text = "Plugin Exited";
-		}
-		#endregion
+            var recvDeleType = typeof(FFXIV_ACT_Plugin.Common.NetworkReceivedDelegate);
+            var recvDelegate = Delegate.CreateDelegate(recvDeleType, (object)this, "DataSubscriptionOnNetworkReceived", true);
+            subs.GetType().GetEvent("NetworkReceived").RemoveEventHandler(subs, recvDelegate);
+
+            SaveSettings();
+            lblStatus.Text = "Plugin Exited";
+        }
+
+        #endregion
 
         #region FFXIV plugin handling
 
         private void DataSubscriptionOnNetworkReceived(string connection, long epoch, byte[] message)
         {
-            var opCode = BitConverter.ToInt16(message, 0x12);
-
-            if (opCode == _definitions.PlayerSetup)
-            {
-                LocalContentId = BitConverter.ToUInt64(message, 0x20);
-                Log($"New CID: {LocalContentId.ToString("X")}");
-                return;
-            }
-
-            if (opCode == _definitions.MarketBoardItemRequestStart)
-            {
-                var catalogId = (uint) BitConverter.ToInt32(message, 0x20);
-                var amount = message[0x2B];
-
-                _marketBoardRequests.Add(new MarketBoardItemRequest
-                {
-                    CatalogId = catalogId,
-                    AmountToArrive = amount,
-                    Listings = new List<MarketBoardCurrentOfferings.MarketBoardItemListing>(),
-                    History = new List<MarketBoardHistory.MarketBoardHistoryListing>()
-                });
-
-                Log($"NEW MB REQUEST START: item#{catalogId} amount#{amount}");
-                return;
-            }
-
-            if (opCode == _definitions.MarketBoardOfferings)
-            {
-                var listing = MarketBoardCurrentOfferings.Read(message.Skip(0x20).ToArray());
-
-                var request =
-                    this._marketBoardRequests.LastOrDefault(
-                        r => r.CatalogId == listing.ItemListings[0].CatalogId && !r.IsDone);
-
-                if (request == null)
-                {
-                    Log(
-                        $"[ERROR] Market Board data arrived without a corresponding request: item#{listing.ItemListings[0].CatalogId}");
-                    return;
-                }
-
-                if (request.Listings.Count + listing.ItemListings.Count > request.AmountToArrive)
-                {
-                    Log(
-                        $"[ERROR] Too many Market Board listings received for request: {request.Listings.Count + listing.ItemListings.Count} > {request.AmountToArrive} item#{listing.ItemListings[0].CatalogId}");
-                    return;
-                }
-
-                if (request.ListingsRequestId != -1 && request.ListingsRequestId != listing.RequestId)
-                {
-                    Log(
-                        $"[ERROR] Non-matching RequestIds for Market Board data request: {request.ListingsRequestId}, {listing.RequestId}");
-                    return;
-                }
-
-                if (request.ListingsRequestId == -1 && request.Listings.Count > 0)
-                {
-                    Log(
-                        $"[ERROR] Market Board data request sequence break: {request.ListingsRequestId}, {request.Listings.Count}");
-                    return;
-                }
-
-                if (request.ListingsRequestId == -1)
-                {
-                    request.ListingsRequestId = listing.RequestId;
-                    Log($"First Market Board packet in sequence: {listing.RequestId}");
-                }
-
-                request.Listings.AddRange(listing.ItemListings);
-
-                Log($"Added {listing.ItemListings.Count} ItemListings to request#{request.ListingsRequestId}, now {request.Listings.Count}/{request.AmountToArrive}, item#{request.CatalogId}");
-
-                if (request.IsDone)
-                {
-                    Log($"Market Board request finished, starting upload: request#{request.ListingsRequestId} item#{request.CatalogId} amount#{request.AmountToArrive}");
-                    try
-                    {
-                        this._uploader.Upload(request);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log("[ERROR] Market Board data upload failed:\n" + ex);
-                    }
-                }
-
-                return;
-            }
-
-            if (opCode == _definitions.MarketBoardHistory)
-            {
-                var listing = MarketBoardHistory.Read(message.Skip(0x20).ToArray());
-
-                var request = this._marketBoardRequests.LastOrDefault(r => r.CatalogId == listing.CatalogId);
-
-                if (request == null)
-                {
-                    Log(
-                        $"Market Board data arrived without a corresponding request: item#{listing.CatalogId}");
-                    return;
-                }
-
-                if (request.ListingsRequestId != -1)
-                {
-                    Log(
-                        $"Market Board data history sequence break: {request.ListingsRequestId}, {request.Listings.Count}");
-                    return;
-                }
-
-                request.History.AddRange(listing.HistoryListings);
-
-                Log($"Added history for item#{listing.CatalogId}");
-            }
+            if (_universalisPacketProcessor.ProcessZonePacket(message))
+                IncreaseUploadCount();
         }
 
-        private FFXIV_ACT_Plugin.FFXIV_ACT_Plugin GetFfxivPlugin()
+        private object GetFfxivPlugin()
         {
-            object ffxivPlugin = null;  
-            
+            object ffxivPlugin = null;
+
             while (ffxivPlugin == null)
             {
-                var plugins = Advanced_Combat_Tracker.ActGlobals.oFormActMain.ActPlugins;
+                var plugins = ActGlobals.oFormActMain.ActPlugins;
                 foreach (var plugin in plugins)
-                {
                     if (plugin.pluginFile.Name.ToUpper().Contains("FFXIV_ACT_Plugin".ToUpper()) &&
                         plugin.lblPluginStatus.Text.ToUpper().Contains("FFXIV Plugin Started.".ToUpper()))
-                    {
                         ffxivPlugin = plugin.pluginObj;
-                    }
-                }
-                System.Threading.Thread.Sleep(1);
+                Thread.Sleep(1);
             }
 
             if (ffxivPlugin == null)
                 throw new Exception("Could not find FFXIV plugin. Make sure that it is loaded before Universalis.");
 
-            return (FFXIV_ACT_Plugin.FFXIV_ACT_Plugin) ffxivPlugin;
+            return ffxivPlugin;
         }
 
         #endregion
 
         #region Miscellaneous
 
-        public void Log(string text) => logTextBox.AppendText($"{text}\n");
+        public void Log(string text)
+        {
+            logTextBox.AppendText($"{text}\n");
+        }
+
+        public void IncreaseUploadCount()
+        {
+            _uploadCount++;
+            uploadedItemsLabel.Text = $"Uploaded Items: {_uploadCount}";
+        }
 
         private static bool CheckNeedsUpdate()
         {
@@ -339,58 +245,59 @@ namespace UniversalisPlugin
                     client.DownloadString(
                         "https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/version");
 
-                return !remoteVersion.StartsWith(Util.GetAssemblyVersion());
+                return !remoteVersion.StartsWith(GetAssemblyVersion());
             }
+        }
+
+        public static string GetAssemblyVersion()
+        {
+            return typeof(UniversalisPluginControl).Assembly.GetName().Version.ToString();
         }
 
         #endregion
 
-        void LoadSettings()
-		{
-			// Add any controls you want to save the state of
-			//xmlSettings.AddControlSetting(textBox1.Name, textBox1);
+        private void LoadSettings()
+        {
+            // Add any controls you want to save the state of
+            //xmlSettings.AddControlSetting(textBox1.Name, textBox1);
 
-			if (File.Exists(settingsFile))
-			{
-				FileStream fs = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-				XmlTextReader xReader = new XmlTextReader(fs);
+            if (File.Exists(settingsFile))
+            {
+                var fs = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                var xReader = new XmlTextReader(fs);
 
-				try
-				{
-					while (xReader.Read())
-					{
-						if (xReader.NodeType == XmlNodeType.Element)
-						{
-							if (xReader.LocalName == "SettingsSerializer")
-							{
-								xmlSettings.ImportFromXml(xReader);
-							}
-						}
-					}
-				}
-				catch (Exception ex)
-				{
-					lblStatus.Text = "Error loading settings: " + ex.Message;
-				}
-				xReader.Close();
-			}
-		}
-		void SaveSettings()
-		{
-			FileStream fs = new FileStream(settingsFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-			XmlTextWriter xWriter = new XmlTextWriter(fs, Encoding.UTF8);
-			xWriter.Formatting = Formatting.Indented;
-			xWriter.Indentation = 1;
-			xWriter.IndentChar = '\t';
-			xWriter.WriteStartDocument(true);
-			xWriter.WriteStartElement("Config");    // <Config>
-			xWriter.WriteStartElement("SettingsSerializer");    // <Config><SettingsSerializer>
-			xmlSettings.ExportToXml(xWriter);   // Fill the SettingsSerializer XML
-			xWriter.WriteEndElement();  // </SettingsSerializer>
-			xWriter.WriteEndElement();  // </Config>
-			xWriter.WriteEndDocument(); // Tie up loose ends (shouldn't be any)
-			xWriter.Flush();    // Flush the file buffer to disk
-			xWriter.Close();
-		}
-	}
+                try
+                {
+                    while (xReader.Read())
+                        if (xReader.NodeType == XmlNodeType.Element)
+                            if (xReader.LocalName == "SettingsSerializer")
+                                xmlSettings.ImportFromXml(xReader);
+                }
+                catch (Exception ex)
+                {
+                    lblStatus.Text = "Error loading settings: " + ex.Message;
+                }
+
+                xReader.Close();
+            }
+        }
+
+        private void SaveSettings()
+        {
+            var fs = new FileStream(settingsFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+            var xWriter = new XmlTextWriter(fs, Encoding.UTF8);
+            xWriter.Formatting = Formatting.Indented;
+            xWriter.Indentation = 1;
+            xWriter.IndentChar = '\t';
+            xWriter.WriteStartDocument(true);
+            xWriter.WriteStartElement("Config"); // <Config>
+            xWriter.WriteStartElement("SettingsSerializer"); // <Config><SettingsSerializer>
+            xmlSettings.ExportToXml(xWriter); // Fill the SettingsSerializer XML
+            xWriter.WriteEndElement(); // </SettingsSerializer>
+            xWriter.WriteEndElement(); // </Config>
+            xWriter.WriteEndDocument(); // Tie up loose ends (shouldn't be any)
+            xWriter.Flush(); // Flush the file buffer to disk
+            xWriter.Close();
+        }
+    }
 }
