@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Reflection;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -14,7 +15,7 @@ using UniversalisCommon;
 [assembly: AssemblyTitle("Universalis ACT plugin")]
 [assembly: AssemblyDescription("ACT plugin that automatically uploads market board data to universalis.app")]
 [assembly: AssemblyCompany("goatsoft")]
-[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
 
 namespace UniversalisPlugin
 {
@@ -124,7 +125,7 @@ namespace UniversalisPlugin
         private Label lblStatus; // The status label that appears in ACT's Plugin tab
 
         private readonly string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName,
-            "Config\\PluginSample.config.xml");
+            "Config\\UniversalisPlugin.config.xml");
 
         private SettingsSerializer xmlSettings;
 
@@ -152,9 +153,12 @@ namespace UniversalisPlugin
                 if (CheckNeedsUpdate())
                 {
                     MessageBox.Show(
-                        "The Universalis plugin needs to be updated. Please download an updated version from the GitHub releases page",
+                        "The Universalis plugin needs to be updated. Please download an updated version from the GitHub releases page.",
                         "Universalis plugin update", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                     Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
+
+                    Log("Plugin needs update.");
+                    lblStatus.Text = "Needs update";
                     return;
                 }
 
@@ -168,6 +172,8 @@ namespace UniversalisPlugin
 
                 _universalisPacketProcessor = new PacketProcessor(ApiKey);
                 _universalisPacketProcessor.Log += (sender, message) => Log(message);
+                _universalisPacketProcessor.LocalContentIdUpdated += (sender, cid) => LastSavedContentId = (long) cid;
+                _universalisPacketProcessor.LocalContentId = (ulong) LastSavedContentId;
 
                 Log("Universalis plugin loaded.");
                 lblStatus.Text = "Plugin Started";
@@ -256,10 +262,13 @@ namespace UniversalisPlugin
 
         #endregion
 
+        public long LastSavedContentId;
+
         private void LoadSettings()
         {
             // Add any controls you want to save the state of
             //xmlSettings.AddControlSetting(textBox1.Name, textBox1);
+            xmlSettings.AddLongSetting("LastSavedContentId");
 
             if (File.Exists(settingsFile))
             {

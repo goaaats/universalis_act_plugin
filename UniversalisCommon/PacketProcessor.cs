@@ -21,6 +21,8 @@ namespace UniversalisCommon
         public ulong LocalContentId { get; set; }
 
         public EventHandler<string> Log;
+        public EventHandler<ulong> LocalContentIdUpdated;
+        public EventHandler RequestContentIdUpdate;
 
         public PacketProcessor(string apiKey)
         {
@@ -48,6 +50,7 @@ namespace UniversalisCommon
             {
                 LocalContentId = BitConverter.ToUInt64(message, 0x20);
                 Log?.Invoke(this, $"New CID: {LocalContentId.ToString("X")}");
+                LocalContentIdUpdated?.Invoke(this, LocalContentId);
                 return false;
             }
 
@@ -123,6 +126,16 @@ namespace UniversalisCommon
                         return false;
                     }
 
+                    RequestContentIdUpdate?.Invoke(this, null);
+
+                    if (LocalContentId == 0)
+                    {
+                        Log?.Invoke(this, "[ERROR] Not sure about your character information. Please log in once with your character while having the program open to verify it.");
+                        //return false;
+                    }
+
+                    LocalContentIdUpdated?.Invoke(this, LocalContentId);
+
                     Log?.Invoke(this,
                         $"Market Board request finished, starting upload: request#{request.ListingsRequestId} item#{request.CatalogId} amount#{request.AmountToArrive}");
                     try
@@ -165,7 +178,7 @@ namespace UniversalisCommon
                 return false;
             }
 
-            if ( opCode == _definitions.ContentIdNameMapResp)
+            if (opCode == _definitions.ContentIdNameMapResp)
             {
                 var cid = BitConverter.ToUInt64(message, 0x20);
                 var name = Encoding.UTF8.GetString(message, 0x28, 32).TrimEnd(new []{'\u0000'});

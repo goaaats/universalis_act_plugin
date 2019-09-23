@@ -100,6 +100,7 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
             {
                 dynamic crafterNameObj = new JObject();
 
+                crafterNameObj.uploaderID = _packetProcessor.LocalContentId;
                 crafterNameObj.contentID = contentId;
                 crafterNameObj.characterName = name;
 

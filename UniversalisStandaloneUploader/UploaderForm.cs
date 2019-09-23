@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -9,8 +10,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Machina;
 using Machina.FFXIV;
+using Nhaama.FFXIV;
 using UniversalisCommon;
-using UniversalisPlugin;
+using UniversalisStandaloneUploader.Properties;
+using Definitions = UniversalisPlugin.Definitions;
 
 namespace UniversalisStandaloneUploader
 {
@@ -26,6 +29,28 @@ namespace UniversalisStandaloneUploader
             InitializeComponent();
 
             winPCapCheckBox.Checked = Properties.Settings.Default.UseWinPCap;
+
+            try
+            {
+                if (Settings.Default.UpgradeRequired)
+                {
+                    Settings.Default.Upgrade();
+                    Settings.Default.UpgradeRequired = false;
+                    Settings.Default.Save();
+                }
+            }catch(Exception ex)
+            {
+                Log("Settings upgrade failed: " + ex);
+            }
+
+            if (Properties.Settings.Default.FirstLaunch)
+            {
+                Properties.Settings.Default.FirstLaunch = false;
+                Properties.Settings.Default.Save();
+
+                MessageBox.Show(
+                    "Thank you for using the Universalis uploader!\n\nPlease don't forget to whitelist the uploader in your windows firewall, like you would with ACT.\nIt will not be able to process market board data otherwise.\nTo start uploading, log in with your character.", "Universalis Uploader", MessageBoxButtons.OK);
+            }
 
             #if DEBUG
             Log(Definitions.GetJson());
@@ -77,6 +102,16 @@ namespace UniversalisStandaloneUploader
                 _packetProcessor.Log += (o, message) => 
                     this.BeginInvoke(new Action(() => Log(message)));
 
+                _packetProcessor.LocalContentIdUpdated += (o, cid) =>
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        Properties.Settings.Default.LastContentId = cid;
+                        Properties.Settings.Default.Save();
+                    }));
+
+                _packetProcessor.LocalContentId = Properties.Settings.Default.LastContentId;
+                _packetProcessor.RequestContentIdUpdate = RequestContentIdUpdate;
+
                 InitializeNetworkMonitor();
 
                 Log("Uploader initialized.");
@@ -87,11 +122,30 @@ namespace UniversalisStandaloneUploader
             }
         }
 
+        private void RequestContentIdUpdate(object sender, EventArgs e)
+        {
+            try
+            {
+                var process = _ffxivNetworkMonitor.ProcessID == 0 ? Process.GetProcessesByName("ffxiv_dx11")[0] : Process.GetProcessById((int) _ffxivNetworkMonitor.ProcessID);
+
+                var game = new Game(process);
+                game.Update();
+
+                _packetProcessor.LocalContentId = game.LocalContentId;
+            }
+            catch (Exception ex)
+            {
+                this.BeginInvoke(new Action(() => Log($"[ERROR] Could not access game memory:\n{ex}")));
+            }
+        }
+
         private void InitializeNetworkMonitor()
         {
+            _ffxivNetworkMonitor?.Stop();
+
             _ffxivNetworkMonitor = new FFXIVNetworkMonitor();
             _ffxivNetworkMonitor.MessageReceived += (connection, epoch, message) =>
-                _packetProcessor.ProcessZonePacket(message);
+                _packetProcessor?.ProcessZonePacket(message);
 
             _ffxivNetworkMonitor.MonitorType = TCPNetworkMonitor.NetworkMonitorType.RawSocket;
 
@@ -130,7 +184,6 @@ namespace UniversalisStandaloneUploader
 
             try
             {
-                _ffxivNetworkMonitor.Stop();
                 InitializeNetworkMonitor();
             }
             catch (Exception ex)
