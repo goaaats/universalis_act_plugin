@@ -15,7 +15,7 @@ namespace UniversalisPlugin
         public short MarketBoardItemRequestStart = 0x0F2;
         public short MarketBoardOfferings = 0x1E2;
         public short MarketBoardHistory = 0x123;
-        public short ContentIdNameMapResp = 0x199;
+        public short ContentIdNameMapResp = 0x06C;
 
         private static readonly Uri DefinitionStoreUrl = new Uri("https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/definitions.json");
 
