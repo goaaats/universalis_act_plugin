@@ -8,14 +8,19 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.CodeDom.Compiler;
+using System.Configuration;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
 namespace UniversalisStandaloneUploader.Properties {
     
     
-    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.2.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+    [CompilerGenerated()]
+    [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.2.0.0")]
+    internal sealed partial class Settings : ApplicationSettingsBase {
         
-        private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
+        private static Settings defaultInstance = ((Settings)(Synchronized(new Settings())));
         
         public static Settings Default {
             get {
@@ -23,9 +28,9 @@ namespace UniversalisStandaloneUploader.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("False")]
         public bool UseWinPCap {
             get {
                 return ((bool)(this["UseWinPCap"]));
@@ -35,9 +40,9 @@ namespace UniversalisStandaloneUploader.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("0")]
         public ulong LastContentId {
             get {
                 return ((ulong)(this["LastContentId"]));
@@ -47,9 +52,9 @@ namespace UniversalisStandaloneUploader.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("True")]
         public bool FirstLaunch {
             get {
                 return ((bool)(this["FirstLaunch"]));
@@ -59,9 +64,9 @@ namespace UniversalisStandaloneUploader.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("True")]
         public bool UpgradeRequired {
             get {
                 return ((bool)(this["UpgradeRequired"]));

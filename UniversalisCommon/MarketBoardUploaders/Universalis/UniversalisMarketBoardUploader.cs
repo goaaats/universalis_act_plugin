@@ -29,12 +29,14 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                 _packetProcessor.Log?.Invoke(this, "Starting Universalis upload.");
                 var uploader = _packetProcessor.LocalContentId;
 
-                var listingsRequestObject = new UniversalisItemListingsUploadRequest();
-                listingsRequestObject.WorldId = (int) _packetProcessor.CurrentWorldId;
-                listingsRequestObject.UploaderId = uploader;
-                listingsRequestObject.ItemId = request.CatalogId;
+                var listingsRequestObject = new UniversalisItemListingsUploadRequest
+                {
+                    WorldId = (int) _packetProcessor.CurrentWorldId,
+                    UploaderId = uploader,
+                    ItemId = request.CatalogId,
+                    Listings = new List<UniversalisItemListingsEntry>(),
+                };
 
-                listingsRequestObject.Listings = new List<UniversalisItemListingsEntry>();
                 foreach (var marketBoardItemListing in request.Listings)
                 {
                     var universalisListing = new UniversalisItemListingsEntry
@@ -49,15 +51,15 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                         LastReviewTime = ((DateTimeOffset) marketBoardItemListing.LastReviewTime).ToUnixTimeSeconds(),
                         PricePerUnit = marketBoardItemListing.PricePerUnit,
                         Quantity = marketBoardItemListing.ItemQuantity,
-                        RetainerCity = marketBoardItemListing.RetainerCityId
+                        RetainerCity = marketBoardItemListing.RetainerCityId,
+                        Materia = new List<UniversalisItemMateria>(),
                     };
 
-                    universalisListing.Materia = new List<UniversalisItemMateria>();
                     foreach (var itemMateria in marketBoardItemListing.Materia)
                         universalisListing.Materia.Add(new UniversalisItemMateria
                         {
                             MateriaId = itemMateria.MateriaId,
-                            SlotId = itemMateria.Index
+                            SlotId = itemMateria.Index,
                         });
 
                     listingsRequestObject.Listings.Add(universalisListing);
@@ -67,12 +69,14 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                 var upload = JsonConvert.SerializeObject(listingsRequestObject);
                 client.UploadString(ApiBase + $"/upload/{_apiKey}", "POST", upload);
 
-                var historyRequestObject = new UniversalisHistoryUploadRequest();
-                historyRequestObject.WorldId = (int) _packetProcessor.CurrentWorldId;
-                historyRequestObject.UploaderId = uploader;
-                historyRequestObject.ItemId = request.CatalogId;
+                var historyRequestObject = new UniversalisHistoryUploadRequest
+                {
+                    WorldId = (int) _packetProcessor.CurrentWorldId,
+                    UploaderId = uploader,
+                    ItemId = request.CatalogId,
+                    Entries = new List<UniversalisHistoryEntry>(),
+                };
 
-                historyRequestObject.Entries = new List<UniversalisHistoryEntry>();
                 foreach (var marketBoardHistoryListing in request.History)
                     historyRequestObject.Entries.Add(new UniversalisHistoryEntry
                     {
@@ -81,7 +85,7 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                         OnMannequin = marketBoardHistoryListing.OnMannequin,
                         PricePerUnit = marketBoardHistoryListing.SalePrice,
                         Quantity = marketBoardHistoryListing.Quantity,
-                        Timestamp = ((DateTimeOffset) marketBoardHistoryListing.PurchaseTime).ToUnixTimeSeconds()
+                        Timestamp = ((DateTimeOffset) marketBoardHistoryListing.PurchaseTime).ToUnixTimeSeconds(),
                     });
 
                 client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
