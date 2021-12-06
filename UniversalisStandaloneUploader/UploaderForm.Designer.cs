@@ -1,11 +1,14 @@
-﻿namespace UniversalisStandaloneUploader
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace UniversalisStandaloneUploader
 {
     partial class UploaderForm
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -129,13 +132,13 @@
 
         #endregion
 
-        private System.Windows.Forms.NotifyIcon systemTrayIcon;
-        private System.Windows.Forms.ContextMenuStrip trayIconMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem showLogToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.RichTextBox logTextBox;
-        private System.Windows.Forms.CheckBox winPCapCheckBox;
+        private NotifyIcon systemTrayIcon;
+        private ContextMenuStrip trayIconMenuStrip;
+        private ToolStripMenuItem showLogToolStripMenuItem;
+        private ToolStripMenuItem exitToolStripMenuItem;
+        private PictureBox pictureBox1;
+        private RichTextBox logTextBox;
+        private CheckBox winPCapCheckBox;
     }
 }
 

@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Machina;
 using Machina.FFXIV;
@@ -28,7 +21,7 @@ namespace UniversalisStandaloneUploader
         {
             InitializeComponent();
 
-            winPCapCheckBox.Checked = Properties.Settings.Default.UseWinPCap;
+            winPCapCheckBox.Checked = Settings.Default.UseWinPCap;
 
             try
             {
@@ -43,13 +36,16 @@ namespace UniversalisStandaloneUploader
                 Log("Settings upgrade failed: " + ex);
             }
 
-            if (Properties.Settings.Default.FirstLaunch)
+            if (Settings.Default.FirstLaunch)
             {
-                Properties.Settings.Default.FirstLaunch = false;
-                Properties.Settings.Default.Save();
+                Settings.Default.FirstLaunch = false;
+                Settings.Default.Save();
 
                 MessageBox.Show(
-                    "Thank you for using the Universalis uploader!\n\nPlease don't forget to whitelist the uploader in your windows firewall, like you would with ACT.\nIt will not be able to process market board data otherwise.\nTo start uploading, log in with your character.", "Universalis Uploader", MessageBoxButtons.OK);
+                    "Thank you for using the Universalis uploader!\n\n" +
+                    "Please don't forget to whitelist the uploader in your windows firewall, like you would with ACT.\n" +
+                    "It will not be able to process market board data otherwise.\n" +
+                    "To start uploading, log in with your character.", "Universalis Uploader", MessageBoxButtons.OK);
             }
 
             #if DEBUG
@@ -62,7 +58,7 @@ namespace UniversalisStandaloneUploader
             //if the form is minimized  
             //hide it from the task bar  
             //and show the system tray icon (represented by the NotifyIcon control)  
-            if (this.WindowState == FormWindowState.Minimized)  
+            if (WindowState == FormWindowState.Minimized)  
             {  
                 Hide();  
                 ShowTrayIcon();
@@ -100,16 +96,16 @@ namespace UniversalisStandaloneUploader
             {
                 _packetProcessor = new PacketProcessor(ApiKey);
                 _packetProcessor.Log += (o, message) => 
-                    this.BeginInvoke(new Action(() => Log(message)));
+                    BeginInvoke(new Action(() => Log(message)));
 
                 _packetProcessor.LocalContentIdUpdated += (o, cid) =>
-                    this.BeginInvoke(new Action(() =>
+                    BeginInvoke(new Action(() =>
                     {
-                        Properties.Settings.Default.LastContentId = cid;
-                        Properties.Settings.Default.Save();
+                        Settings.Default.LastContentId = cid;
+                        Settings.Default.Save();
                     }));
 
-                _packetProcessor.LocalContentId = Properties.Settings.Default.LastContentId;
+                _packetProcessor.LocalContentId = Settings.Default.LastContentId;
                 _packetProcessor.RequestContentIdUpdate = RequestContentIdUpdate;
 
                 InitializeNetworkMonitor();
@@ -135,7 +131,7 @@ namespace UniversalisStandaloneUploader
             }
             catch (Exception ex)
             {
-                this.BeginInvoke(new Action(() => Log($"[ERROR] Could not access game memory:\n{ex}")));
+                BeginInvoke(new Action(() => Log($"[ERROR] Could not access game memory:\n{ex}")));
             }
         }
 
@@ -179,8 +175,8 @@ namespace UniversalisStandaloneUploader
 
         private void WinPCapCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.UseWinPCap = winPCapCheckBox.Checked;
-            Properties.Settings.Default.Save();
+            Settings.Default.UseWinPCap = winPCapCheckBox.Checked;
+            Settings.Default.Save();
 
             try
             {
