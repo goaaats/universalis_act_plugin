@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("UniversalisStandaloneUploader")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Universalis Standalone Uploader")]
+[assembly: AssemblyDescription("Standalone upload software for the market board API, Universalis.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Universalis")]
 [assembly: AssemblyProduct("UniversalisStandaloneUploader")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyCopyright("Copyright Universalis ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
