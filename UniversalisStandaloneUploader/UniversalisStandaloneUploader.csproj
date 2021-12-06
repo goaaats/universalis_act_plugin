@@ -53,6 +53,11 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
+    <PathMap>$(AppOutputBase)=U:\niversalis\</PathMap>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>dalamud_icon.ico</ApplicationIcon>
   </PropertyGroup>
