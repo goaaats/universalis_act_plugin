@@ -49,7 +49,7 @@ namespace UniversalisCommon
             if (opCode == _definitions.PlayerSetup)
             {
                 LocalContentId = BitConverter.ToUInt64(message, 0x20);
-                Log?.Invoke(this, $"New CID: {LocalContentId.ToString("X")}");
+                Log?.Invoke(this, $"New CID: {LocalContentId:X}");
                 LocalContentIdUpdated?.Invoke(this, LocalContentId);
                 return false;
             }
@@ -181,7 +181,7 @@ namespace UniversalisCommon
             if (opCode == _definitions.ContentIdNameMapResp)
             {
                 var cid = BitConverter.ToUInt64(message, 0x20);
-                var name = Encoding.UTF8.GetString(message, 0x28, 32).TrimEnd(new []{'\u0000'});
+                var name = Encoding.UTF8.GetString(message, 0x28, 32).TrimEnd('\u0000');
 
                 try
                 {

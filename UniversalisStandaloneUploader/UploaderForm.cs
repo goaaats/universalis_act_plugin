@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Windows.Forms;
 using Machina;
 using Machina.FFXIV;
-using Nhaama.FFXIV;
 using UniversalisCommon;
 using UniversalisStandaloneUploader.Properties;
-using Definitions = UniversalisPlugin.Definitions;
 
 namespace UniversalisStandaloneUploader
 {
@@ -118,21 +115,8 @@ namespace UniversalisStandaloneUploader
             }
         }
 
-        private void RequestContentIdUpdate(object sender, EventArgs e)
+        private static void RequestContentIdUpdate(object sender, EventArgs e)
         {
-            try
-            {
-                var process = _ffxivNetworkMonitor.ProcessID == 0 ? Process.GetProcessesByName("ffxiv_dx11")[0] : Process.GetProcessById((int) _ffxivNetworkMonitor.ProcessID);
-
-                var game = new Game(process);
-                game.Update();
-
-                _packetProcessor.LocalContentId = game.LocalContentId;
-            }
-            catch (Exception ex)
-            {
-                BeginInvoke(new Action(() => Log($"[ERROR] Could not access game memory:\n{ex}")));
-            }
         }
 
         private void InitializeNetworkMonitor()
