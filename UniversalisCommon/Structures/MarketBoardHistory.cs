@@ -1,19 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-using UniversalisPlugin;
 
 namespace Dalamud.Game.Network.Structures
 {
-    public class MarketBoardHistory {
+    public class MarketBoardHistory
+    {
         public uint CatalogId;
         public uint CatalogId2;
 
-        public class MarketBoardHistoryListing {
+        public class MarketBoardHistoryListing
+        {
             public uint SalePrice;
             public DateTime PurchaseTime;
             public uint Quantity;
@@ -31,32 +29,30 @@ namespace Dalamud.Game.Network.Structures
         {
             var output = new MarketBoardHistory();
 
-            using (var stream = new MemoryStream(message)) {
-                using (var reader = new BinaryReader(stream)) {
-                    output.CatalogId = reader.ReadUInt32();
-                    output.CatalogId2 = reader.ReadUInt32();
+            using var stream = new MemoryStream(message);
+            using var reader = new BinaryReader(stream);
+            output.CatalogId = reader.ReadUInt32();
+            output.CatalogId2 = reader.ReadUInt32();
 
-                    output.HistoryListings = new List<MarketBoardHistoryListing>();
+            output.HistoryListings = new List<MarketBoardHistoryListing>();
 
-                    for (var i = 0; i < 10; i++)
-                    {
-                        var listingEntry = new MarketBoardHistoryListing();
+            for (var i = 0; i < 10; i++)
+            {
+                var listingEntry = new MarketBoardHistoryListing();
 
-                        listingEntry.SalePrice = reader.ReadUInt32();
-                        listingEntry.PurchaseTime = DateTimeOffset.FromUnixTimeSeconds(reader.ReadUInt32()).UtcDateTime;
-                        listingEntry.Quantity = reader.ReadUInt32();
-                        listingEntry.IsHq = reader.ReadBoolean();
+                listingEntry.SalePrice = reader.ReadUInt32();
+                listingEntry.PurchaseTime = DateTimeOffset.FromUnixTimeSeconds(reader.ReadUInt32()).UtcDateTime;
+                listingEntry.Quantity = reader.ReadUInt32();
+                listingEntry.IsHq = reader.ReadBoolean();
 
-                        reader.ReadBoolean();
+                reader.ReadBoolean();
 
-                        listingEntry.OnMannequin = reader.ReadBoolean();
-                        listingEntry.BuyerName = Encoding.UTF8.GetString(reader.ReadBytes(33)).TrimEnd(new []{'\u0000'});
-                        listingEntry.CatalogId = reader.ReadUInt32();
+                listingEntry.OnMannequin = reader.ReadBoolean();
+                listingEntry.BuyerName = Encoding.UTF8.GetString(reader.ReadBytes(33)).TrimEnd(new[] { '\u0000' });
+                listingEntry.CatalogId = reader.ReadUInt32();
 
-                        if (listingEntry.CatalogId != 0)
-                            output.HistoryListings.Add(listingEntry);
-                    }
-                }
+                if (listingEntry.CatalogId != 0)
+                    output.HistoryListings.Add(listingEntry);
             }
 
             return output;

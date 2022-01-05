@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using Dalamud.Game.Network;
 using Dalamud.Game.Network.MarketBoardUploaders;
+using Dalamud.Game.Network.MarketBoardUploaders.Universalis;
 using Dalamud.Game.Network.Structures;
 using Dalamud.Game.Network.Universalis.MarketBoardUploaders;
+using Newtonsoft.Json;
 using UniversalisPlugin;
 
 namespace UniversalisCommon
@@ -176,6 +178,38 @@ namespace UniversalisCommon
 
                 Log?.Invoke(this, $"Added history for item#{listing.CatalogId}");
                 return false;
+            }
+
+            if (opCode == _definitions.MarketTaxRates)
+            {
+                var taxRates = MarketTaxRates.Read(message.Skip(0x20).ToArray());
+                var request = new UniversalisTaxDataUploadRequest
+                {
+                    UploaderId = LocalContentId.ToString("X"),
+                    WorldId = CurrentWorldId,
+                    TaxData = new UniversalisTaxData
+                    {
+                        LimsaLominsa = taxRates.LimsaLominsaTax,
+                        Uldah = taxRates.UldahTax,
+                        Gridania = taxRates.GridaniaTax,
+                        Ishgard = taxRates.IshgardTax,
+                        Kugane = taxRates.KuganeTax,
+                        Crystarium = taxRates.CrystariumTax,
+                        Sharlayan = taxRates.SharlayanTax,
+                    },
+                };
+
+                Log?.Invoke(this, $"Uploading tax rates {JsonConvert.SerializeObject(taxRates)}");
+                try
+                {
+                    _uploader.UploadTaxRates(request);
+                    Log?.Invoke(this, "Tax rates upload completed.");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Log?.Invoke(this, "[ERROR] Tax rates upload failed:\n" + ex);
+                }
             }
 
             if (opCode == _definitions.ContentIdNameMapResp)
