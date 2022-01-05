@@ -1,8 +1,7 @@
-﻿using System;
-using System.Windows.Forms;
-using Machina;
-using Machina.FFXIV;
+﻿using Machina.FFXIV;
 using Machina.Infrastructure;
+using System;
+using System.Windows.Forms;
 using UniversalisCommon;
 using UniversalisStandaloneUploader.Properties;
 
@@ -29,7 +28,8 @@ namespace UniversalisStandaloneUploader
                     Settings.Default.UpgradeRequired = false;
                     Settings.Default.Save();
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Log("Settings upgrade failed: " + ex);
             }
@@ -46,7 +46,7 @@ namespace UniversalisStandaloneUploader
                     "To start uploading, log in with your character.", "Universalis Uploader", MessageBoxButtons.OK);
             }
 
-            #if DEBUG
+#if DEBUG
             Log(Definitions.GetJson());
 #endif
         }
@@ -56,16 +56,16 @@ namespace UniversalisStandaloneUploader
             //if the form is minimized  
             //hide it from the task bar  
             //and show the system tray icon (represented by the NotifyIcon control)  
-            if (WindowState == FormWindowState.Minimized)  
-            {  
-                Hide();  
+            if (WindowState == FormWindowState.Minimized)
+            {
+                Hide();
                 ShowTrayIcon();
-            }  
+            }
         }
 
         public void ShowTrayIcon()
         {
-            systemTrayIcon.Visible = true;     
+            systemTrayIcon.Visible = true;
             systemTrayIcon.ShowBalloonTip(1000);
         }
 
@@ -93,7 +93,7 @@ namespace UniversalisStandaloneUploader
             try
             {
                 _packetProcessor = new PacketProcessor(ApiKey);
-                _packetProcessor.Log += (o, message) => 
+                _packetProcessor.Log += (o, message) =>
                     BeginInvoke(new Action(() => Log(message)));
 
                 _packetProcessor.LocalContentIdUpdated += (o, cid) =>
@@ -153,7 +153,7 @@ namespace UniversalisStandaloneUploader
             else
             {
                 e.Cancel = true;
-                Hide();  
+                Hide();
                 ShowTrayIcon();
             }
         }
