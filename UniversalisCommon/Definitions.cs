@@ -11,6 +11,7 @@ namespace UniversalisPlugin
         public short MarketBoardItemRequestStart = 0x349;
         public short MarketBoardOfferings = 0x130;
         public short MarketBoardHistory = 0x1F7;
+        public short MarketTaxRates = 0x273;
         public short ContentIdNameMapResp = 0x172;
 
         private static readonly Uri DefinitionStoreUrl = new Uri("https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/definitions.json");
@@ -19,19 +20,17 @@ namespace UniversalisPlugin
 
         public static Definitions Get()
         {
-            using (WebClient client = new WebClient())
+            using var client = new WebClient();
+            try
             {
-                try
-                {
-                    var definitionJson = client.DownloadString(DefinitionStoreUrl);
-                    var deserializedDefinition = JsonConvert.DeserializeObject<Definitions>(definitionJson);
+                var definitionJson = client.DownloadString(DefinitionStoreUrl);
+                var deserializedDefinition = JsonConvert.DeserializeObject<Definitions>(definitionJson);
 
-                    return deserializedDefinition;
-                }
-                catch (WebException exc)
-                {
-                    throw new Exception("Could not get definitions for Universalis.", exc);
-                }
+                return deserializedDefinition;
+            }
+            catch (WebException exc)
+            {
+                throw new Exception("Could not get definitions for Universalis.", exc);
             }
         }
     }
