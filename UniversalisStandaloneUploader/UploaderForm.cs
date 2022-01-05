@@ -1,12 +1,9 @@
-﻿using System;
-using System.Diagnostics;
+﻿using Machina.FFXIV;
+using Machina.Infrastructure;
+using System;
 using System.Windows.Forms;
-using Machina;
-using Machina.FFXIV;
-using Nhaama.FFXIV;
 using UniversalisCommon;
 using UniversalisStandaloneUploader.Properties;
-using Definitions = UniversalisPlugin.Definitions;
 
 namespace UniversalisStandaloneUploader
 {
@@ -31,7 +28,8 @@ namespace UniversalisStandaloneUploader
                     Settings.Default.UpgradeRequired = false;
                     Settings.Default.Save();
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Log("Settings upgrade failed: " + ex);
             }
@@ -48,7 +46,7 @@ namespace UniversalisStandaloneUploader
                     "To start uploading, log in with your character.", "Universalis Uploader", MessageBoxButtons.OK);
             }
 
-            #if DEBUG
+#if DEBUG
             Log(Definitions.GetJson());
 #endif
         }
@@ -58,16 +56,16 @@ namespace UniversalisStandaloneUploader
             //if the form is minimized  
             //hide it from the task bar  
             //and show the system tray icon (represented by the NotifyIcon control)  
-            if (WindowState == FormWindowState.Minimized)  
-            {  
-                Hide();  
+            if (WindowState == FormWindowState.Minimized)
+            {
+                Hide();
                 ShowTrayIcon();
-            }  
+            }
         }
 
         public void ShowTrayIcon()
         {
-            systemTrayIcon.Visible = true;     
+            systemTrayIcon.Visible = true;
             systemTrayIcon.ShowBalloonTip(1000);
         }
 
@@ -95,7 +93,7 @@ namespace UniversalisStandaloneUploader
             try
             {
                 _packetProcessor = new PacketProcessor(ApiKey);
-                _packetProcessor.Log += (o, message) => 
+                _packetProcessor.Log += (o, message) =>
                     BeginInvoke(new Action(() => Log(message)));
 
                 _packetProcessor.LocalContentIdUpdated += (o, cid) =>
@@ -118,21 +116,8 @@ namespace UniversalisStandaloneUploader
             }
         }
 
-        private void RequestContentIdUpdate(object sender, EventArgs e)
+        private static void RequestContentIdUpdate(object sender, EventArgs e)
         {
-            try
-            {
-                var process = _ffxivNetworkMonitor.ProcessID == 0 ? Process.GetProcessesByName("ffxiv_dx11")[0] : Process.GetProcessById((int) _ffxivNetworkMonitor.ProcessID);
-
-                var game = new Game(process);
-                game.Update();
-
-                _packetProcessor.LocalContentId = game.LocalContentId;
-            }
-            catch (Exception ex)
-            {
-                BeginInvoke(new Action(() => Log($"[ERROR] Could not access game memory:\n{ex}")));
-            }
         }
 
         private void InitializeNetworkMonitor()
@@ -140,13 +125,13 @@ namespace UniversalisStandaloneUploader
             _ffxivNetworkMonitor?.Stop();
 
             _ffxivNetworkMonitor = new FFXIVNetworkMonitor();
-            _ffxivNetworkMonitor.MessageReceived += (connection, epoch, message) =>
+            _ffxivNetworkMonitor.MessageReceivedEventHandler += (connection, epoch, message) =>
                 _packetProcessor?.ProcessZonePacket(message);
 
-            _ffxivNetworkMonitor.MonitorType = TCPNetworkMonitor.NetworkMonitorType.RawSocket;
+            _ffxivNetworkMonitor.MonitorType = NetworkMonitorType.RawSocket;
 
             if (winPCapCheckBox.Checked)
-                _ffxivNetworkMonitor.MonitorType = TCPNetworkMonitor.NetworkMonitorType.WinPCap;
+                _ffxivNetworkMonitor.MonitorType = NetworkMonitorType.WinPCap;
 
             _ffxivNetworkMonitor.Start();
         }
@@ -168,7 +153,7 @@ namespace UniversalisStandaloneUploader
             else
             {
                 e.Cancel = true;
-                Hide();  
+                Hide();
                 ShowTrayIcon();
             }
         }
