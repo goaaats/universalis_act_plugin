@@ -129,14 +129,6 @@
       <Project>{2681c607-a075-4070-be13-34f0a395119e}</Project>
       <Name>Machina</Name>
     </ProjectReference>
-    <ProjectReference Include="..\lib\Nhaama\Nhaama.FFXIV\Nhaama.FFXIV.csproj">
-      <Project>{af6e37bd-4598-4194-945b-c8f6ee9309fe}</Project>
-      <Name>Nhaama.FFXIV</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\Nhaama\Nhaama.Memory\Nhaama.Memory.csproj">
-      <Project>{933935a7-8d04-42e8-aee5-122b3aeed820}</Project>
-      <Name>Nhaama.Memory</Name>
-    </ProjectReference>
     <ProjectReference Include="..\UniversalisCommon\UniversalisCommon.csproj">
       <Project>{a9bec0d6-462c-458a-a42a-e0440e3552aa}</Project>
       <Name>UniversalisCommon</Name>
