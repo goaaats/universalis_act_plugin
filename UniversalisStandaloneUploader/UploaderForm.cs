@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using Machina;
 using Machina.FFXIV;
+using Machina.Infrastructure;
 using UniversalisCommon;
 using UniversalisStandaloneUploader.Properties;
 
@@ -124,13 +125,13 @@ namespace UniversalisStandaloneUploader
             _ffxivNetworkMonitor?.Stop();
 
             _ffxivNetworkMonitor = new FFXIVNetworkMonitor();
-            _ffxivNetworkMonitor.MessageReceived += (connection, epoch, message) =>
+            _ffxivNetworkMonitor.MessageReceivedEventHandler += (connection, epoch, message) =>
                 _packetProcessor?.ProcessZonePacket(message);
 
-            _ffxivNetworkMonitor.MonitorType = TCPNetworkMonitor.NetworkMonitorType.RawSocket;
+            _ffxivNetworkMonitor.MonitorType = NetworkMonitorType.RawSocket;
 
             if (winPCapCheckBox.Checked)
-                _ffxivNetworkMonitor.MonitorType = TCPNetworkMonitor.NetworkMonitorType.WinPCap;
+                _ffxivNetworkMonitor.MonitorType = NetworkMonitorType.WinPCap;
 
             _ffxivNetworkMonitor.Start();
         }

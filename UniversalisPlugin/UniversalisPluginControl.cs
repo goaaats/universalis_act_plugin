@@ -202,7 +202,7 @@ namespace UniversalisPlugin
 
         #region FFXIV plugin handling
 
-        private void DataSubscriptionOnNetworkReceived(string connection, long epoch, byte[] message)
+        private void DataSubscriptionOnNetworkReceived(TCPConnection connection, long epoch, byte[] message)
         {
             try
             {

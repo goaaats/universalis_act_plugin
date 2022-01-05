@@ -71,6 +71,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>SDK\FFXIV_ACT_Plugin.Common.dll</HintPath>
     </Reference>
+    <Reference Include="Machina, Version=2.3.0.7, Culture=neutral, PublicKeyToken=9f740ac505d6bc50, processorArchitecture=MSIL">
+      <HintPath>..\packages\Machina.2.3.0.7\lib\netstandard2.0\Machina.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Machina.FFXIV, Version=2.3.2.1, Culture=neutral, PublicKeyToken=9f740ac505d6bc50, processorArchitecture=MSIL">
+      <HintPath>..\packages\Machina.FFXIV.2.3.2.1\lib\netstandard2.0\Machina.FFXIV.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />

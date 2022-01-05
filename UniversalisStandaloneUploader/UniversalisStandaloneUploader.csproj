@@ -68,6 +68,12 @@
     <Reference Include="Costura, Version=4.1.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
       <HintPath>..\packages\Costura.Fody.4.1.0\lib\net40\Costura.dll</HintPath>
     </Reference>
+    <Reference Include="Machina, Version=2.3.0.7, Culture=neutral, PublicKeyToken=9f740ac505d6bc50, processorArchitecture=MSIL">
+      <HintPath>..\packages\Machina.2.3.0.7\lib\netstandard2.0\Machina.dll</HintPath>
+    </Reference>
+    <Reference Include="Machina.FFXIV, Version=2.3.2.1, Culture=neutral, PublicKeyToken=9f740ac505d6bc50, processorArchitecture=MSIL">
+      <HintPath>..\packages\Machina.FFXIV.2.3.2.1\lib\netstandard2.0\Machina.FFXIV.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -121,14 +127,6 @@
     <None Include="Resources\universalis_bodge.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lib\machina\Machina.FFXIV\Machina.FFXIV.csproj">
-      <Project>{4303e4f0-4c90-44eb-90c2-691451fe49e7}</Project>
-      <Name>Machina.FFXIV</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\machina\Machina\Machina.csproj">
-      <Project>{2681c607-a075-4070-be13-34f0a395119e}</Project>
-      <Name>Machina</Name>
-    </ProjectReference>
     <ProjectReference Include="..\UniversalisCommon\UniversalisCommon.csproj">
       <Project>{a9bec0d6-462c-458a-a42a-e0440e3552aa}</Project>
       <Name>UniversalisCommon</Name>
