@@ -164,16 +164,16 @@ namespace UniversalisPlugin
 
                 FfxivPlugin = GetFfxivPlugin();
 
+                _universalisPacketProcessor = new PacketProcessor(ApiKey);
+                _universalisPacketProcessor.Log += (sender, message) => Log(message);
+                _universalisPacketProcessor.LocalContentIdUpdated += (sender, cid) => LastSavedContentId = (long)cid;
+                _universalisPacketProcessor.LocalContentId = (ulong)LastSavedContentId;
+
                 var subs = FfxivPlugin.GetType().GetProperty("DataSubscription").GetValue(FfxivPlugin, null);
 
                 var recvDeleType = typeof(FFXIV_ACT_Plugin.Common.NetworkReceivedDelegate);
                 var recvDelegate = Delegate.CreateDelegate(recvDeleType, (object)this, "DataSubscriptionOnNetworkReceived", true);
                 subs.GetType().GetEvent("NetworkReceived").AddEventHandler(subs, recvDelegate);
-
-                _universalisPacketProcessor = new PacketProcessor(ApiKey);
-                _universalisPacketProcessor.Log += (sender, message) => Log(message);
-                _universalisPacketProcessor.LocalContentIdUpdated += (sender, cid) => LastSavedContentId = (long) cid;
-                _universalisPacketProcessor.LocalContentId = (ulong) LastSavedContentId;
 
                 Log("Universalis plugin loaded.");
                 lblStatus.Text = "Plugin Started";
@@ -204,23 +204,25 @@ namespace UniversalisPlugin
 
         private void DataSubscriptionOnNetworkReceived(string connection, long epoch, byte[] message)
         {
-            if (_universalisPacketProcessor.ProcessZonePacket(message))
-                IncreaseUploadCount();
+            try
+            {
+                if (_universalisPacketProcessor.ProcessZonePacket(message))
+                    IncreaseUploadCount();
+            } catch(Exception e)
+            {
+                Log("[ERROR] Uncaught exception in DataSubscriptionOnNetworkReceived: " + e.ToString());
+            }
         }
 
         private object GetFfxivPlugin()
         {
             object ffxivPlugin = null;
 
-            while (ffxivPlugin == null)
-            {
-                var plugins = ActGlobals.oFormActMain.ActPlugins;
-                foreach (var plugin in plugins)
-                    if (plugin.pluginFile.Name.ToUpper().Contains("FFXIV_ACT_Plugin".ToUpper()) &&
-                        plugin.lblPluginStatus.Text.ToUpper().Contains("FFXIV Plugin Started.".ToUpper()))
-                        ffxivPlugin = plugin.pluginObj;
-                Thread.Sleep(1);
-            }
+            var plugins = ActGlobals.oFormActMain.ActPlugins;
+            foreach (var plugin in plugins)
+                if (plugin.pluginFile.Name.ToUpper().Contains("FFXIV_ACT_Plugin".ToUpper()) &&
+                    plugin.pluginObj is FFXIV_ACT_Plugin.FFXIV_ACT_Plugin)
+                    ffxivPlugin = plugin.pluginObj;
 
             if (ffxivPlugin == null)
                 throw new Exception("Could not find FFXIV plugin. Make sure that it is loaded before Universalis.");
