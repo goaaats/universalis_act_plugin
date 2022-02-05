@@ -154,15 +154,15 @@ namespace UniversalisPlugin
                     Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
 
                     Log("Plugin needs update.");
-                    lblStatus.Text = "Needs update";
+                    lblStatus.Text = "Needs update.";
                     return;
                 }
 
                 FFXIVPlugin = GetFFXIVPlugin();
 
                 _universalisPacketProcessor = new PacketProcessor(ApiKey);
-                _universalisPacketProcessor.Log += (sender, message) => Log(message);
-                _universalisPacketProcessor.LocalContentIdUpdated += (sender, cid) => LastSavedContentId = (long)cid;
+                _universalisPacketProcessor.Log += (_, message) => Log(message);
+                _universalisPacketProcessor.LocalContentIdUpdated += (_, cid) => LastSavedContentId = (long)cid;
                 _universalisPacketProcessor.LocalContentId = (ulong)LastSavedContentId;
 
                 var subs = FFXIVPlugin.GetType().GetProperty("DataSubscription")?.GetValue(FFXIVPlugin, null);
@@ -175,12 +175,12 @@ namespace UniversalisPlugin
                 subs.GetType().GetEvent("NetworkReceived").AddEventHandler(subs, recvDelegate);
 
                 Log("Universalis plugin loaded.");
-                lblStatus.Text = "Plugin Started";
+                lblStatus.Text = "Plugin Started.";
             }
             catch (Exception ex)
             {
                 Log("[ERROR] Could not initialize plugin:\n" + ex);
-                lblStatus.Text = "Plugin Failed";
+                lblStatus.Text = "Plugin Failed.";
             }
         }
 
@@ -193,7 +193,7 @@ namespace UniversalisPlugin
             subs.GetType().GetEvent("NetworkReceived").RemoveEventHandler(subs, recvDelegate);
 
             SaveSettings();
-            lblStatus.Text = "Plugin Exited";
+            lblStatus.Text = "Plugin Exited.";
         }
 
         #endregion
