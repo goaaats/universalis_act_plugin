@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net462</TargetFramework>
+		<TargetFramework>net48</TargetFramework>
 		<Version>1.2.0.0</Version>
 		<ApplicationIcon>dalamud_icon.ico</ApplicationIcon>
 		<Company>goatsoft</Company>
@@ -23,7 +23,7 @@
 	<ItemGroup>
 		<PackageReference Include="Costura.Fody" Version="4.1.0" />
 		<PackageReference Include="Machina" Version="2.3.0.7" />
-		<PackageReference Include="Machina.FFXIV" Version="2.3.2.1" />
+		<PackageReference Include="Machina.FFXIV" Version="2.3.2.4" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -33,33 +33,39 @@
 	<ItemGroup>
 	  <Reference Include="Advanced Combat Tracker">
 	    <HintPath>SDK\Advanced Combat Tracker.exe</HintPath>
+		<Private>false</Private>
 	  </Reference>
 	  <Reference Include="FFXIV_ACT_Plugin">
 	    <HintPath>SDK\FFXIV_ACT_Plugin.dll</HintPath>
+		<Private>false</Private>
 	  </Reference>
 	  <Reference Include="FFXIV_ACT_Plugin.Common">
 	    <HintPath>SDK\FFXIV_ACT_Plugin.Common.dll</HintPath>
+		<Private>false</Private>
 	  </Reference>
 	  <Reference Include="FFXIV_ACT_Plugin.Config">
 	    <HintPath>SDK\FFXIV_ACT_Plugin.Config.dll</HintPath>
+		  <Private>false</Private>
 	  </Reference>
 	  <Reference Include="FFXIV_ACT_Plugin.LogFile">
 	    <HintPath>SDK\FFXIV_ACT_Plugin.LogFile.dll</HintPath>
+		<Private>false</Private>
 	  </Reference>
 	  <Reference Include="FFXIV_ACT_Plugin.Memory">
 	    <HintPath>SDK\FFXIV_ACT_Plugin.Memory.dll</HintPath>
+		  <Private>false</Private>
 	  </Reference>
 	  <Reference Include="FFXIV_ACT_Plugin.Network">
 	    <HintPath>SDK\FFXIV_ACT_Plugin.Network.dll</HintPath>
-	  </Reference>
-	  <Reference Include="FFXIV_ACT_Plugin.Overlay">
-	    <HintPath>SDK\FFXIV_ACT_Plugin.Overlay.dll</HintPath>
+		<Private>false</Private>
 	  </Reference>
 	  <Reference Include="FFXIV_ACT_Plugin.Parse">
 	    <HintPath>SDK\FFXIV_ACT_Plugin.Parse.dll</HintPath>
+		<Private>false</Private>
 	  </Reference>
 	  <Reference Include="FFXIV_ACT_Plugin.Resource">
 	    <HintPath>SDK\FFXIV_ACT_Plugin.Resource.dll</HintPath>
+		<Private>false</Private>
 	  </Reference>
 	  <Reference Include="System.Windows.Forms" />
 	</ItemGroup>
