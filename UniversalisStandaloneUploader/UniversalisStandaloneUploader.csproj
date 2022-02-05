@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net4.6.2</TargetFramework>
+		<TargetFramework>net48</TargetFramework>
 		<Version>1.2.0.0</Version>
 		<ApplicationIcon>dalamud_icon.ico</ApplicationIcon>
 		<StartupObject>UniversalisStandaloneUploader.Program</StartupObject>
@@ -19,7 +19,7 @@
 	<ItemGroup>
 		<PackageReference Include="Costura.Fody" Version="4.1.0" />
 		<PackageReference Include="Machina" Version="2.3.0.7" />
-		<PackageReference Include="Machina.FFXIV" Version="2.3.2.1" />
+		<PackageReference Include="Machina.FFXIV" Version="2.3.2.4" />
 	</ItemGroup>
 
 	<ItemGroup>

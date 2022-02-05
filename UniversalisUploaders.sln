@@ -5,9 +5,22 @@ VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalisPlugin", "UniversalisPlugin\UniversalisPlugin.csproj", "{1749AF3B-F485-4EA5-9F25-6C8805501A02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalisCommon", "UniversalisCommon\UniversalisCommon.csproj", "{A9BEC0D6-462C-458A-A42A-E0440E3552AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniversalisCommon", "UniversalisCommon\UniversalisCommon.csproj", "{A9BEC0D6-462C-458A-A42A-E0440E3552AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalisStandaloneUploader", "UniversalisStandaloneUploader\UniversalisStandaloneUploader.csproj", "{39648E81-D236-4EF5-94DD-B18F136846BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniversalisStandaloneUploader", "UniversalisStandaloneUploader\UniversalisStandaloneUploader.csproj", "{39648E81-D236-4EF5-94DD-B18F136846BC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{06503FA7-6DAC-41BC-96DC-F2BBC25865B1}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Remote", "Remote", "{13EAA502-DAC6-43DA-8207-3260ECCDF8F7}"
+	ProjectSection(SolutionItems) = preProject
+		definitions.json = definitions.json
+		version = version
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
