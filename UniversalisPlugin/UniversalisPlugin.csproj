@@ -7,6 +7,7 @@
 		<Company>goatsoft</Company>
 		<Authors>Universalis</Authors>
 		<Product>Universalis ACT plugin</Product>
+		<LangVersion>9.0</LangVersion>
 		<Description>ACT plugin that automatically uploads market board data to universalis.app</Description>
 	</PropertyGroup>
 

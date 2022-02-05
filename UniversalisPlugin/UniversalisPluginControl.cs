@@ -3,7 +3,9 @@ using Machina.Infrastructure;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Windows.Forms;
@@ -122,12 +124,12 @@ namespace UniversalisPlugin
 
         private SettingsSerializer xmlSettings;
 
-        public object FfxivPlugin;
+        public object FFXIVPlugin;
 
         private const string ApiKey = "CiAQfpfIK6eDcBLRUSv1rp6neR7MsWsRkrhHvzBH";
         private PacketProcessor _universalisPacketProcessor;
 
-        private int _uploadCount = 0;
+        private int _uploadCount;
 
         #region IActPluginV1 Members
 
@@ -155,17 +157,21 @@ namespace UniversalisPlugin
                     return;
                 }
 
-                FfxivPlugin = GetFfxivPlugin();
+                FFXIVPlugin = GetFFXIVPlugin();
 
                 _universalisPacketProcessor = new PacketProcessor(ApiKey);
                 _universalisPacketProcessor.Log += (sender, message) => Log(message);
                 _universalisPacketProcessor.LocalContentIdUpdated += (sender, cid) => LastSavedContentId = (long)cid;
                 _universalisPacketProcessor.LocalContentId = (ulong)LastSavedContentId;
 
-                var subs = FfxivPlugin.GetType().GetProperty("DataSubscription").GetValue(FfxivPlugin, null);
+                var subs = FFXIVPlugin.GetType().GetProperty("DataSubscription")?.GetValue(FFXIVPlugin, null);
+                if (subs == null)
+                {
+                    throw new NullReferenceException("Failed to get data subscriptions object!");
+                }
 
-                var recvDeleType = typeof(FFXIV_ACT_Plugin.Common.NetworkReceivedDelegate);
-                var recvDelegate = Delegate.CreateDelegate(recvDeleType, (object)this, "DataSubscriptionOnNetworkReceived", true);
+                var recvDelegateType = typeof(FFXIV_ACT_Plugin.Common.NetworkReceivedDelegate);
+                var recvDelegate = Delegate.CreateDelegate(recvDelegateType, this, "DataSubscriptionOnNetworkReceived", true);
                 subs.GetType().GetEvent("NetworkReceived").AddEventHandler(subs, recvDelegate);
 
                 Log("Universalis plugin loaded.");
@@ -181,10 +187,10 @@ namespace UniversalisPlugin
         public void DeInitPlugin()
         {
             // Unsubscribe from any events you listen to when exiting!
-            var subs = FfxivPlugin.GetType().GetProperty("DataSubscription").GetValue(FfxivPlugin, null);
+            var subs = FFXIVPlugin.GetType().GetProperty("DataSubscription")!.GetValue(FFXIVPlugin, null);
 
-            var recvDeleType = typeof(FFXIV_ACT_Plugin.Common.NetworkReceivedDelegate);
-            var recvDelegate = Delegate.CreateDelegate(recvDeleType, (object)this, "DataSubscriptionOnNetworkReceived", true);
+            var recvDelegateType = typeof(FFXIV_ACT_Plugin.Common.NetworkReceivedDelegate);
+            var recvDelegate = Delegate.CreateDelegate(recvDelegateType, this, "DataSubscriptionOnNetworkReceived", true);
             subs.GetType().GetEvent("NetworkReceived").RemoveEventHandler(subs, recvDelegate);
 
             SaveSettings();
@@ -195,7 +201,8 @@ namespace UniversalisPlugin
 
         #region FFXIV plugin handling
 
-        private void DataSubscriptionOnNetworkReceived(TCPConnection connection, long epoch, byte[] message)
+        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Method used via reflection.")]
+        public void DataSubscriptionOnNetworkReceived(TCPConnection connection, long epoch, byte[] message)
         {
             try
             {
@@ -208,18 +215,17 @@ namespace UniversalisPlugin
             }
         }
 
-        private object GetFfxivPlugin()
+        private static object GetFFXIVPlugin()
         {
-            object ffxivPlugin = null;
-
             var plugins = ActGlobals.oFormActMain.ActPlugins;
-            foreach (var plugin in plugins)
-                if (plugin.pluginFile.Name.ToUpper().Contains("FFXIV_ACT_Plugin".ToUpper()) &&
-                    plugin.pluginObj is FFXIV_ACT_Plugin.FFXIV_ACT_Plugin)
-                    ffxivPlugin = plugin.pluginObj;
+            object ffxivPlugin = plugins
+                .Where(p => p.pluginFile.Name.ToUpper().Contains("FFXIV_ACT_Plugin".ToUpper()))
+                .FirstOrDefault(p => p.pluginObj is FFXIV_ACT_Plugin.FFXIV_ACT_Plugin)?.pluginObj;
 
             if (ffxivPlugin == null)
+            {
                 throw new Exception("Could not find FFXIV plugin. Make sure that it is loaded before Universalis.");
+            }
 
             return ffxivPlugin;
         }
@@ -290,10 +296,13 @@ namespace UniversalisPlugin
         private void SaveSettings()
         {
             var fs = new FileStream(settingsFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-            var xWriter = new XmlTextWriter(fs, Encoding.UTF8);
-            xWriter.Formatting = Formatting.Indented;
-            xWriter.Indentation = 1;
-            xWriter.IndentChar = '\t';
+            var xWriter = new XmlTextWriter(fs, Encoding.UTF8)
+            {
+                Formatting = Formatting.Indented,
+                Indentation = 1,
+                IndentChar = '\t',
+            };
+
             xWriter.WriteStartDocument(true);
             xWriter.WriteStartElement("Config"); // <Config>
             xWriter.WriteStartElement("SettingsSerializer"); // <Config><SettingsSerializer>
