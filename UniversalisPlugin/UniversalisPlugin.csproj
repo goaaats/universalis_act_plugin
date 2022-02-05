@@ -32,7 +32,7 @@
 
 	<ItemGroup>
 	  <Reference Include="Advanced Combat Tracker">
-	    <HintPath>..\..\..\..\..\..\Program Files (x86)\Advanced Combat Tracker\Advanced Combat Tracker.exe</HintPath>
+	    <HintPath>C:\Program Files (x86)\Advanced Combat Tracker\Advanced Combat Tracker.exe</HintPath>
 	  </Reference>
 	  <Reference Include="FFXIV_ACT_Plugin">
 	    <HintPath>SDK\FFXIV_ACT_Plugin.dll</HintPath>
