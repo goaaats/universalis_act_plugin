@@ -61,12 +61,93 @@ namespace UniversalisPlugin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error loading settings: .
+        /// </summary>
+        internal static string ErrorLoadingSettings {
+            get {
+                return ResourceManager.GetString("ErrorLoadingSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Needs update..
+        /// </summary>
+        internal static string NeedsUpdate {
+            get {
+                return ResourceManager.GetString("NeedsUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plugin Exited..
+        /// </summary>
+        internal static string PluginExited {
+            get {
+                return ResourceManager.GetString("PluginExited", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plugin Failed..
+        /// </summary>
+        internal static string PluginFailed {
+            get {
+                return ResourceManager.GetString("PluginFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plugin Started..
+        /// </summary>
+        internal static string PluginStarted {
+            get {
+                return ResourceManager.GetString("PluginStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap universalis_bodge {
             get {
                 object obj = ResourceManager.GetObject("universalis_bodge", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Universalis plugin needs to be updated. Please download an updated version from the GitHub releases page..
+        /// </summary>
+        internal static string UniversalisNeedsUpdateLong {
+            get {
+                return ResourceManager.GetString("UniversalisNeedsUpdateLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Universalis plugin update.
+        /// </summary>
+        internal static string UniversalisNeedsUpdateLongCaption {
+            get {
+                return ResourceManager.GetString("UniversalisNeedsUpdateLongCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Universalis.
+        /// </summary>
+        internal static string UniversalisTitle {
+            get {
+                return ResourceManager.GetString("UniversalisTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uploaded Items: {0}.
+        /// </summary>
+        internal static string UploadedItemsCount {
+            get {
+                return ResourceManager.GetString("UploadedItemsCount", resourceCulture);
             }
         }
     }

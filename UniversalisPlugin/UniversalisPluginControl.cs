@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Xml;
 using FFXIV_ACT_Plugin.Common;
 using UniversalisCommon;
+using UniversalisPlugin.Properties;
 
 namespace UniversalisPlugin
 {
@@ -142,19 +143,19 @@ namespace UniversalisPlugin
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             LoadSettings();
 
-            pluginScreenSpace.Text = "Universalis";
+            pluginScreenSpace.Text = Resources.UniversalisTitle;
 
             try
             {
                 if (CheckNeedsUpdate())
                 {
                     MessageBox.Show(
-                        "The Universalis plugin needs to be updated. Please download an updated version from the GitHub releases page.",
-                        "Universalis plugin update", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                        Resources.UniversalisNeedsUpdateLong,
+                        Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                     Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
 
                     Log("Plugin needs update.");
-                    lblStatus.Text = "Needs update.";
+                    lblStatus.Text = Resources.NeedsUpdate;
                     return;
                 }
 
@@ -175,12 +176,12 @@ namespace UniversalisPlugin
                 subs.GetType().GetEvent("NetworkReceived").AddEventHandler(subs, recvDelegate);
 
                 Log("Universalis plugin loaded.");
-                lblStatus.Text = "Plugin Started.";
+                lblStatus.Text = Resources.PluginStarted;
             }
             catch (Exception ex)
             {
                 Log("[ERROR] Could not initialize plugin:\n" + ex);
-                lblStatus.Text = "Plugin Failed.";
+                lblStatus.Text = Resources.PluginFailed;
             }
         }
 
@@ -193,7 +194,7 @@ namespace UniversalisPlugin
             subs.GetType().GetEvent("NetworkReceived").RemoveEventHandler(subs, recvDelegate);
 
             SaveSettings();
-            lblStatus.Text = "Plugin Exited.";
+            lblStatus.Text = Resources.PluginExited;
         }
 
         #endregion
@@ -240,7 +241,7 @@ namespace UniversalisPlugin
         public void IncreaseUploadCount()
         {
             _uploadCount++;
-            uploadedItemsLabel.Text = $"Uploaded Items: {_uploadCount}";
+            uploadedItemsLabel.Text = string.Format(Resources.UploadedItemsCount, _uploadCount);
         }
 
         private static bool CheckNeedsUpdate()
@@ -283,7 +284,7 @@ namespace UniversalisPlugin
                 }
                 catch (Exception ex)
                 {
-                    lblStatus.Text = "Error loading settings: " + ex.Message;
+                    lblStatus.Text = Resources.ErrorLoadingSettings + ex.Message;
                 }
 
                 xReader.Close();
