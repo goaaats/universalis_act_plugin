@@ -10,7 +10,9 @@ using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using FFXIV_ACT_Plugin.Common;
 using UniversalisCommon;
+using UniversalisPlugin.Properties;
 
 namespace UniversalisPlugin
 {
@@ -141,27 +143,27 @@ namespace UniversalisPlugin
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             LoadSettings();
 
-            pluginScreenSpace.Text = "Universalis";
+            pluginScreenSpace.Text = Resources.UniversalisTitle;
 
             try
             {
                 if (CheckNeedsUpdate())
                 {
                     MessageBox.Show(
-                        "The Universalis plugin needs to be updated. Please download an updated version from the GitHub releases page.",
-                        "Universalis plugin update", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                        Resources.UniversalisNeedsUpdateLong,
+                        Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                     Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
 
                     Log("Plugin needs update.");
-                    lblStatus.Text = "Needs update";
+                    lblStatus.Text = Resources.NeedsUpdate;
                     return;
                 }
 
                 FFXIVPlugin = GetFFXIVPlugin();
 
                 _universalisPacketProcessor = new PacketProcessor(ApiKey);
-                _universalisPacketProcessor.Log += (sender, message) => Log(message);
-                _universalisPacketProcessor.LocalContentIdUpdated += (sender, cid) => LastSavedContentId = (long)cid;
+                _universalisPacketProcessor.Log += (_, message) => Log(message);
+                _universalisPacketProcessor.LocalContentIdUpdated += (_, cid) => LastSavedContentId = (long)cid;
                 _universalisPacketProcessor.LocalContentId = (ulong)LastSavedContentId;
 
                 var subs = FFXIVPlugin.GetType().GetProperty("DataSubscription")?.GetValue(FFXIVPlugin, null);
@@ -170,17 +172,16 @@ namespace UniversalisPlugin
                     throw new NullReferenceException("Failed to get data subscriptions object!");
                 }
 
-                var recvDelegateType = typeof(FFXIV_ACT_Plugin.Common.NetworkReceivedDelegate);
-                var recvDelegate = Delegate.CreateDelegate(recvDelegateType, this, "DataSubscriptionOnNetworkReceived", true);
+                var recvDelegate = (NetworkReceivedDelegate)DataSubscriptionOnNetworkReceived;
                 subs.GetType().GetEvent("NetworkReceived").AddEventHandler(subs, recvDelegate);
 
                 Log("Universalis plugin loaded.");
-                lblStatus.Text = "Plugin Started";
+                lblStatus.Text = Resources.PluginStarted;
             }
             catch (Exception ex)
             {
                 Log("[ERROR] Could not initialize plugin:\n" + ex);
-                lblStatus.Text = "Plugin Failed";
+                lblStatus.Text = Resources.PluginFailed;
             }
         }
 
@@ -188,21 +189,19 @@ namespace UniversalisPlugin
         {
             // Unsubscribe from any events you listen to when exiting!
             var subs = FFXIVPlugin.GetType().GetProperty("DataSubscription")!.GetValue(FFXIVPlugin, null);
-
-            var recvDelegateType = typeof(FFXIV_ACT_Plugin.Common.NetworkReceivedDelegate);
-            var recvDelegate = Delegate.CreateDelegate(recvDelegateType, this, "DataSubscriptionOnNetworkReceived", true);
+            
+            var recvDelegate = (NetworkReceivedDelegate)DataSubscriptionOnNetworkReceived;
             subs.GetType().GetEvent("NetworkReceived").RemoveEventHandler(subs, recvDelegate);
 
             SaveSettings();
-            lblStatus.Text = "Plugin Exited";
+            lblStatus.Text = Resources.PluginExited;
         }
 
         #endregion
 
         #region FFXIV plugin handling
-
-        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Method used via reflection.")]
-        public void DataSubscriptionOnNetworkReceived(TCPConnection connection, long epoch, byte[] message)
+        
+        private void DataSubscriptionOnNetworkReceived(string connection, long epoch, byte[] message)
         {
             try
             {
@@ -242,7 +241,7 @@ namespace UniversalisPlugin
         public void IncreaseUploadCount()
         {
             _uploadCount++;
-            uploadedItemsLabel.Text = $"Uploaded Items: {_uploadCount}";
+            uploadedItemsLabel.Text = string.Format(Resources.UploadedItemsCount, _uploadCount);
         }
 
         private static bool CheckNeedsUpdate()
@@ -285,7 +284,7 @@ namespace UniversalisPlugin
                 }
                 catch (Exception ex)
                 {
-                    lblStatus.Text = "Error loading settings: " + ex.Message;
+                    lblStatus.Text = Resources.ErrorLoadingSettings + ex.Message;
                 }
 
                 xReader.Close();
