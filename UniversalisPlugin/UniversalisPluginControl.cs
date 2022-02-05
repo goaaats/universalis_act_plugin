@@ -247,14 +247,13 @@ namespace UniversalisPlugin
 
         private static bool CheckNeedsUpdate()
         {
-            using (var client = new WebClient())
-            {
-                var remoteVersion =
-                    client.DownloadString(
-                        "https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/version");
+            using var client = new WebClient();
 
-                return !remoteVersion.StartsWith(GetAssemblyVersion());
-            }
+            var remoteVersion =
+                client.DownloadString(
+                    "https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/version");
+
+            return !remoteVersion.StartsWith(GetAssemblyVersion());
         }
 
         public static string GetAssemblyVersion()
