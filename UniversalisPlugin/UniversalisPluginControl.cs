@@ -10,6 +10,7 @@ using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using FFXIV_ACT_Plugin.Common;
 using UniversalisCommon;
 
 namespace UniversalisPlugin
@@ -170,8 +171,7 @@ namespace UniversalisPlugin
                     throw new NullReferenceException("Failed to get data subscriptions object!");
                 }
 
-                var recvDelegateType = typeof(FFXIV_ACT_Plugin.Common.NetworkReceivedDelegate);
-                var recvDelegate = Delegate.CreateDelegate(recvDelegateType, this, "DataSubscriptionOnNetworkReceived", true);
+                var recvDelegate = (NetworkReceivedDelegate)DataSubscriptionOnNetworkReceived;
                 subs.GetType().GetEvent("NetworkReceived").AddEventHandler(subs, recvDelegate);
 
                 Log("Universalis plugin loaded.");
@@ -188,9 +188,8 @@ namespace UniversalisPlugin
         {
             // Unsubscribe from any events you listen to when exiting!
             var subs = FFXIVPlugin.GetType().GetProperty("DataSubscription")!.GetValue(FFXIVPlugin, null);
-
-            var recvDelegateType = typeof(FFXIV_ACT_Plugin.Common.NetworkReceivedDelegate);
-            var recvDelegate = Delegate.CreateDelegate(recvDelegateType, this, "DataSubscriptionOnNetworkReceived", true);
+            
+            var recvDelegate = (NetworkReceivedDelegate)DataSubscriptionOnNetworkReceived;
             subs.GetType().GetEvent("NetworkReceived").RemoveEventHandler(subs, recvDelegate);
 
             SaveSettings();
@@ -200,9 +199,8 @@ namespace UniversalisPlugin
         #endregion
 
         #region FFXIV plugin handling
-
-        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Method used via reflection.")]
-        public void DataSubscriptionOnNetworkReceived(TCPConnection connection, long epoch, byte[] message)
+        
+        private void DataSubscriptionOnNetworkReceived(string connection, long epoch, byte[] message)
         {
             try
             {
