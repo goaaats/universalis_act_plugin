@@ -1,125 +1,67 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="packages\Costura.Fody.4.1.0\build\Costura.Fody.props" Condition="Exists('packages\Costura.Fody.4.1.0\build\Costura.Fody.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UniversalisPlugin</RootNamespace>
-    <AssemblyName>UniversalisPlugin</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <StartupObject>
-    </StartupObject>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <ProjectGuid>{1749AF3B-F485-4EA5-9F25-6C8805501A02}</ProjectGuid>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <StartAction>Program</StartAction>
-    <StartProgram>C:\Program Files\Advanced Combat Tracker\Advanced Combat Tracker.exe</StartProgram>
-    <StartWorkingDirectory>C:\Program Files\Advanced Combat Tracker\</StartWorkingDirectory>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <ItemGroup>
-    <Reference Include="Advanced Combat Tracker">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Advanced Combat Tracker\Advanced Combat Tracker.exe</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Costura, Version=4.1.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
-      <HintPath>packages\Costura.Fody.4.1.0\lib\net40\Costura.dll</HintPath>
-    </Reference>
-    <Reference Include="FFXIV_ACT_Plugin, Version=2.0.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>SDK\FFXIV_ACT_Plugin.dll</HintPath>
-    </Reference>
-    <Reference Include="FFXIV_ACT_Plugin.Common, Version=2.0.2.2, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>SDK\FFXIV_ACT_Plugin.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="Machina, Version=2.3.0.7, Culture=neutral, PublicKeyToken=9f740ac505d6bc50, processorArchitecture=MSIL">
-      <HintPath>..\packages\Machina.2.3.0.7\lib\netstandard2.0\Machina.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Machina.FFXIV, Version=2.3.2.1, Culture=neutral, PublicKeyToken=9f740ac505d6bc50, processorArchitecture=MSIL">
-      <HintPath>..\packages\Machina.FFXIV.2.3.2.1\lib\netstandard2.0\Machina.FFXIV.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="UniversalisPluginControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UniversalisPluginControl.resx">
-      <DependentUpon>UniversalisPluginControl.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-    <None Include="Resources\universalis_bodge.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\UniversalisCommon\UniversalisCommon.csproj">
-      <Project>{a9bec0d6-462c-458a-a42a-e0440e3552aa}</Project>
-      <Name>UniversalisCommon</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('packages\Fody.6.0.0\build\Fody.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('packages\Fody.6.0.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fody.6.0.0\build\Fody.targets'))" />
-    <Error Condition="!Exists('packages\Costura.Fody.4.1.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Costura.Fody.4.1.0\build\Costura.Fody.props'))" />
-  </Target>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net462</TargetFramework>
+		<Version>1.2.0.0</Version>
+		<ApplicationIcon>dalamud_icon.ico</ApplicationIcon>
+		<Company>goatsoft</Company>
+		<Authors>Universalis</Authors>
+		<Product>Universalis ACT plugin</Product>
+		<Description>ACT plugin that automatically uploads market board data to universalis.app</Description>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
+		<PathMap>$(AppOutputBase)=U:\niversalis\</PathMap>
+		<Deterministic>true</Deterministic>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="UniversalisPluginControl.cs~RF21976ed5.TMP" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Costura.Fody" Version="4.1.0" />
+		<PackageReference Include="Machina" Version="2.3.0.7" />
+		<PackageReference Include="Machina.FFXIV" Version="2.3.2.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\UniversalisCommon\UniversalisCommon.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="Advanced Combat Tracker">
+	    <HintPath>..\..\..\..\..\..\Program Files (x86)\Advanced Combat Tracker\Advanced Combat Tracker.exe</HintPath>
+	  </Reference>
+	  <Reference Include="FFXIV_ACT_Plugin">
+	    <HintPath>SDK\FFXIV_ACT_Plugin.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FFXIV_ACT_Plugin.Common">
+	    <HintPath>SDK\FFXIV_ACT_Plugin.Common.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FFXIV_ACT_Plugin.Config">
+	    <HintPath>SDK\FFXIV_ACT_Plugin.Config.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FFXIV_ACT_Plugin.LogFile">
+	    <HintPath>SDK\FFXIV_ACT_Plugin.LogFile.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FFXIV_ACT_Plugin.Memory">
+	    <HintPath>SDK\FFXIV_ACT_Plugin.Memory.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FFXIV_ACT_Plugin.Network">
+	    <HintPath>SDK\FFXIV_ACT_Plugin.Network.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FFXIV_ACT_Plugin.Overlay">
+	    <HintPath>SDK\FFXIV_ACT_Plugin.Overlay.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FFXIV_ACT_Plugin.Parse">
+	    <HintPath>SDK\FFXIV_ACT_Plugin.Parse.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FFXIV_ACT_Plugin.Resource">
+	    <HintPath>SDK\FFXIV_ACT_Plugin.Resource.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Windows.Forms" />
+	</ItemGroup>
+
 </Project>

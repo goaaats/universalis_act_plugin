@@ -1,21 +1,14 @@
-﻿using System;
+﻿using Advanced_Combat_Tracker;
+using Machina.Infrastructure;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Reflection;
-using System.Runtime.Remoting.Channels;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-using Advanced_Combat_Tracker;
 using UniversalisCommon;
-
-[assembly: AssemblyTitle("Universalis ACT plugin")]
-[assembly: AssemblyDescription("ACT plugin that automatically uploads market board data to universalis.app")]
-[assembly: AssemblyCompany("goatsoft")]
-[assembly: AssemblyVersion("1.1.0.0")]
 
 namespace UniversalisPlugin
 {
@@ -208,7 +201,8 @@ namespace UniversalisPlugin
             {
                 if (_universalisPacketProcessor.ProcessZonePacket(message))
                     IncreaseUploadCount();
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Log("[ERROR] Uncaught exception in DataSubscriptionOnNetworkReceived: " + e.ToString());
             }
