@@ -1,8 +1,10 @@
 ﻿<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
   <Costura>
-  	<ExcludeAssemblies>
-        FFXIV_ACT_Plugin
-        FFXIV_ACT_Plugin.Common
-    </ExcludeAssemblies>
+  	<IncludeAssemblies>
+        Newtonsoft.Json
+        Machina
+        Machina.FFXIV
+        UniversalisCommon
+    </IncludeAssemblies>
   </Costura>
 </Weavers>
