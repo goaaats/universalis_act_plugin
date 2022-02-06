@@ -145,7 +145,7 @@ namespace UniversalisPlugin
 
             try
             {
-                if (CheckNeedsUpdate())
+                if (UpdateUtils.CheckNeedsUpdate())
                 {
                     MessageBox.Show(
                         Resources.UniversalisNeedsUpdateLong,
@@ -240,22 +240,6 @@ namespace UniversalisPlugin
         {
             _uploadCount++;
             uploadedItemsLabel.Text = string.Format(Resources.UploadedItemsCount, _uploadCount);
-        }
-
-        private static bool CheckNeedsUpdate()
-        {
-            using var client = new WebClient();
-
-            var remoteVersion =
-                client.DownloadString(
-                    "https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/version");
-
-            return !remoteVersion.StartsWith(GetAssemblyVersion());
-        }
-
-        public static string GetAssemblyVersion()
-        {
-            return typeof(UniversalisPluginControl).Assembly.GetName().Version.ToString();
         }
 
         #endregion
