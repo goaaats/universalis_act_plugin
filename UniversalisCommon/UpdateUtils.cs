@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Reflection;
 
 namespace UniversalisCommon
@@ -16,9 +17,14 @@ namespace UniversalisCommon
             return !remoteVersion.StartsWith(GetAssemblyVersion(applicationAssembly));
         }
 
-        public static string GetAssemblyVersion(Assembly applicationAssembly)
+        private static string GetAssemblyVersion(Assembly applicationAssembly)
         {
             return applicationAssembly.GetName().Version.ToString();
+        }
+
+        public static void OpenLatestReleaseInBrowser()
+        {
+            Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
         }
     }
 }

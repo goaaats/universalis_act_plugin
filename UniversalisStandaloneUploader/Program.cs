@@ -23,7 +23,7 @@ namespace UniversalisStandaloneUploader
 
                 if (dlgResult == DialogResult.OK)
                 {
-                    Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
+                    UpdateUtils.OpenLatestReleaseInBrowser();
                 }
             }
 
