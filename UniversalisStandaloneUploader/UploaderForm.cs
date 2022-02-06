@@ -40,11 +40,7 @@ namespace UniversalisStandaloneUploader
                 Settings.Default.FirstLaunch = false;
                 Settings.Default.Save();
 
-                MessageBox.Show(
-                    "Thank you for using the Universalis uploader!\n\n" +
-                    "Please don't forget to whitelist the uploader in your windows firewall, like you would with ACT.\n" +
-                    "It will not be able to process market board data otherwise.\n" +
-                    "To start uploading, log in with your character.", "Universalis Uploader", MessageBoxButtons.OK);
+                MessageBox.Show(Resources.FirstLaunchWelcome, Resources.UniversalisFormTitle, MessageBoxButtons.OK);
             }
 
 #if DEBUG
@@ -171,7 +167,7 @@ namespace UniversalisStandaloneUploader
 
         private void UploaderForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.WindowsShutDown || MessageBox.Show("Do you want to stop uploading market board data?", "Universalis Uploader",
+            if (e.CloseReason == CloseReason.WindowsShutDown || MessageBox.Show(Resources.AskStopUploadingData, Resources.UniversalisFormTitle,
                     MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
             {
                 try

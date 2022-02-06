@@ -127,4 +127,17 @@
   <data name="UniversalisNeedsUpdateLongCaption" xml:space="preserve">
 	  <value>Universalis plugin update</value>
   </data>
+  <data name="AskStopUploadingData" xml:space="preserve">
+	  <value>Do you want to stop uploading market board data?</value>
+  </data>
+  <data name="UniversalisFormTitle" xml:space="preserve">
+	  <value>Universalis Uploader</value>
+  </data>
+  <data name="FirstLaunchWelcome" xml:space="preserve">
+	  <value>Thank you for using the Universalis uploader!
+
+Please don't forget to whitelist the uploader in your windows firewall, like you would with ACT.
+It will not be able to process market board data otherwise.
+To start uploading, log in with your character.</value>
+  </data>
 </root>
