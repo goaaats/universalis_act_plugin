@@ -1,16 +1,14 @@
 ﻿using Advanced_Combat_Tracker;
-using Machina.Infrastructure;
+using FFXIV_ACT_Plugin.Common;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using FFXIV_ACT_Plugin.Common;
 using UniversalisCommon;
 using UniversalisPlugin.Properties;
 
@@ -166,14 +164,14 @@ namespace UniversalisPlugin
                 _universalisPacketProcessor.LocalContentIdUpdated += (_, cid) => LastSavedContentId = (long)cid;
                 _universalisPacketProcessor.LocalContentId = (ulong)LastSavedContentId;
 
-                var subs = FFXIVPlugin.GetType().GetProperty("DataSubscription")?.GetValue(FFXIVPlugin, null);
+                var subs = FFXIVPlugin.GetType().GetProperty(nameof(FFXIV_ACT_Plugin.FFXIV_ACT_Plugin.DataSubscription))?.GetValue(FFXIVPlugin, null);
                 if (subs == null)
                 {
                     throw new NullReferenceException("Failed to get data subscriptions object!");
                 }
 
                 var recvDelegate = (NetworkReceivedDelegate)DataSubscriptionOnNetworkReceived;
-                subs.GetType().GetEvent("NetworkReceived").AddEventHandler(subs, recvDelegate);
+                subs.GetType().GetEvent(nameof(IDataSubscription.NetworkReceived)).AddEventHandler(subs, recvDelegate);
 
                 Log("Universalis plugin loaded.");
                 lblStatus.Text = Resources.PluginStarted;
@@ -188,10 +186,10 @@ namespace UniversalisPlugin
         public void DeInitPlugin()
         {
             // Unsubscribe from any events you listen to when exiting!
-            var subs = FFXIVPlugin.GetType().GetProperty("DataSubscription")!.GetValue(FFXIVPlugin, null);
-            
+            var subs = FFXIVPlugin.GetType().GetProperty(nameof(FFXIV_ACT_Plugin.FFXIV_ACT_Plugin.DataSubscription))!.GetValue(FFXIVPlugin, null);
+
             var recvDelegate = (NetworkReceivedDelegate)DataSubscriptionOnNetworkReceived;
-            subs.GetType().GetEvent("NetworkReceived").RemoveEventHandler(subs, recvDelegate);
+            subs.GetType().GetEvent(nameof(IDataSubscription.NetworkReceived)).RemoveEventHandler(subs, recvDelegate);
 
             SaveSettings();
             lblStatus.Text = Resources.PluginExited;
@@ -200,7 +198,7 @@ namespace UniversalisPlugin
         #endregion
 
         #region FFXIV plugin handling
-        
+
         private void DataSubscriptionOnNetworkReceived(string connection, long epoch, byte[] message)
         {
             try
@@ -218,7 +216,7 @@ namespace UniversalisPlugin
         {
             var plugins = ActGlobals.oFormActMain.ActPlugins;
             object ffxivPlugin = plugins
-                .Where(p => p.pluginFile.Name.ToUpper().Contains("FFXIV_ACT_Plugin".ToUpper()))
+                .Where(p => p.pluginFile.Name.ToUpper().Contains(nameof(FFXIV_ACT_Plugin).ToUpper()))
                 .FirstOrDefault(p => p.pluginObj is FFXIV_ACT_Plugin.FFXIV_ACT_Plugin)?.pluginObj;
 
             if (ffxivPlugin == null)
