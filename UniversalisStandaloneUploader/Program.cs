@@ -15,19 +15,6 @@ namespace UniversalisStandaloneUploader
         [STAThread]
         public static void Main()
         {
-            var updateCheckRes = UpdateUtils.UpdateCheck(Assembly.GetAssembly(typeof(Program)));
-            if (updateCheckRes == UpdateCheckResult.NeedsUpdate)
-            {
-                var dlgResult = MessageBox.Show(
-                    Resources.UniversalisNeedsUpdateLong,
-                    Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
-
-                if (dlgResult == DialogResult.OK)
-                {
-                    UpdateUtils.OpenLatestReleaseInBrowser();
-                }
-            }
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 

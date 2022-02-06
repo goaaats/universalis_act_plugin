@@ -1,6 +1,7 @@
 ﻿using Machina.FFXIV;
 using Machina.Infrastructure;
 using System;
+using System.Reflection;
 using System.Windows.Forms;
 using UniversalisCommon;
 using UniversalisStandaloneUploader.Properties;
@@ -90,6 +91,38 @@ namespace UniversalisStandaloneUploader
 
         private void UploaderForm_Load(object sender, EventArgs e)
         {
+            try
+            {
+                var updateCheckRes = UpdateUtils.UpdateCheck(Assembly.GetAssembly(GetType()));
+                switch (updateCheckRes)
+                {
+                    case UpdateCheckResult.NeedsUpdate:
+                        var dlgResult = MessageBox.Show(
+                            Resources.UniversalisNeedsUpdateLong,
+                            Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OKCancel,
+                            MessageBoxIcon.Asterisk);
+
+                        if (dlgResult == DialogResult.OK)
+                        {
+                            UpdateUtils.OpenLatestReleaseInBrowser();
+                        }
+
+                        Log(
+                            "Plugin needs update. Please refrain from asking for plugin support before attempting to update.");
+                        break;
+                    case UpdateCheckResult.RemoteVersionParsingFailed:
+                        Log("Failed to parse remote version information. Please report this error.");
+                        break;
+                    case UpdateCheckResult.UpToDate:
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"[ERROR] Failed to perform update check:\n{ex}");
+            }
+
             try
             {
                 _packetProcessor = new PacketProcessor(ApiKey);
