@@ -17,10 +17,14 @@ namespace UniversalisStandaloneUploader
         {
             if (UpdateUtils.CheckNeedsUpdate(Assembly.GetAssembly(typeof(Program))))
             {
-                MessageBox.Show(
+                var dlgResult = MessageBox.Show(
                     Resources.UniversalisNeedsUpdateLong,
-                    Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
+                    Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
+
+                if (dlgResult == DialogResult.OK)
+                {
+                    Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
+                }
             }
 
             Application.EnableVisualStyles();
