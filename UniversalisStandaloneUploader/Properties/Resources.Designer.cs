@@ -69,5 +69,23 @@ namespace UniversalisStandaloneUploader.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Universalis plugin needs to be updated. Please download an updated version from the GitHub releases page..
+        /// </summary>
+        internal static string UniversalisNeedsUpdateLong {
+            get {
+                return ResourceManager.GetString("UniversalisNeedsUpdateLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Universalis plugin update.
+        /// </summary>
+        internal static string UniversalisNeedsUpdateLongCaption {
+            get {
+                return ResourceManager.GetString("UniversalisNeedsUpdateLongCaption", resourceCulture);
+            }
+        }
     }
 }

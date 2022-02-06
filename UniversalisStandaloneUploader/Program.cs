@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Reflection;
 using System.Windows.Forms;
+using UniversalisCommon;
+using UniversalisStandaloneUploader.Properties;
 
 namespace UniversalisStandaloneUploader
 {
@@ -11,6 +15,14 @@ namespace UniversalisStandaloneUploader
         [STAThread]
         public static void Main()
         {
+            if (UpdateUtils.CheckNeedsUpdate(Assembly.GetAssembly(typeof(Program))))
+            {
+                MessageBox.Show(
+                    Resources.UniversalisNeedsUpdateLong,
+                    Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -18,7 +30,6 @@ namespace UniversalisStandaloneUploader
 
             Application.Run();
 
-            
             uploaderForm.ShowTrayIcon();
         }
     }
