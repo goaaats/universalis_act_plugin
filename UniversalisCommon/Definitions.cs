@@ -16,6 +16,10 @@ namespace UniversalisCommon
 
         private static readonly Uri DefinitionStoreUrl = new Uri(RemoteDataLocations.OpcodeDefinitions);
 
+        private Definitions()
+        {
+        }
+
         public static Definitions Get()
         {
             using var client = new WebClient();
