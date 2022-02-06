@@ -73,6 +73,12 @@ namespace UniversalisCommon
         private bool ProcessMarketTaxRates(byte[] message)
         {
             var taxRates = MarketTaxRates.Read(message.Skip(0x20).ToArray());
+
+            if (taxRates.Category != 0xb0009)
+            {
+                return false;
+            }
+
             var request = new UniversalisTaxDataUploadRequest
             {
                 UploaderId = LocalContentId.ToString("X"),
