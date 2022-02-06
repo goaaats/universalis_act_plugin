@@ -208,7 +208,7 @@ namespace UniversalisPlugin
             }
             catch (Exception e)
             {
-                Log("[ERROR] Uncaught exception in DataSubscriptionOnNetworkReceived: " + e.ToString());
+                Log("[ERROR] Uncaught exception in DataSubscriptionOnNetworkReceived: " + e);
             }
         }
 
