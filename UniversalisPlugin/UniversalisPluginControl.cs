@@ -145,19 +145,29 @@ namespace UniversalisPlugin
 
             try
             {
-                if (UpdateUtils.CheckNeedsUpdate(Assembly.GetAssembly(GetType())))
+                var updateCheckRes = UpdateUtils.UpdateCheck(Assembly.GetAssembly(GetType()));
+                switch (updateCheckRes)
                 {
-                    var dlgResult = MessageBox.Show(
-                        Resources.UniversalisNeedsUpdateLong,
-                        Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
+                    case UpdateCheckResult.NeedsUpdate:
+                        var dlgResult = MessageBox.Show(
+                            Resources.UniversalisNeedsUpdateLong,
+                            Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
 
-                    if (dlgResult == DialogResult.OK)
-                    {
-                        UpdateUtils.OpenLatestReleaseInBrowser();
-                    }
+                        if (dlgResult == DialogResult.OK)
+                        {
+                            UpdateUtils.OpenLatestReleaseInBrowser();
+                        }
 
-                    Log("Plugin needs update. Please refrain from asking for plugin support before attempting to update.");
-                    lblStatus.Text = Resources.NeedsUpdate;
+                        Log("Plugin needs update. Please refrain from asking for plugin support before attempting to update.");
+                        lblStatus.Text = Resources.NeedsUpdate;
+                        break;
+                    case UpdateCheckResult.RemoteVersionParsingFailed:
+                        Log("Failed to parse remote version information. Please report this error.");
+                        lblStatus.Text = Resources.UpdateCheckFailed;
+                        break;
+                    case UpdateCheckResult.UpToDate:
+                    default:
+                        break;
                 }
 
                 FFXIVPlugin = GetFFXIVPlugin();

@@ -148,4 +148,7 @@
   <data name="ErrorLoadingSettings" xml:space="preserve">
 	  <value>Error loading settings: </value>
   </data>
+  <data name="UpdateCheckFailed" xml:space="preserve">
+	  <value>Update check failed.</value>
+  </data>
 </root>

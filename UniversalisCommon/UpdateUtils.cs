@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 
@@ -6,20 +7,27 @@ namespace UniversalisCommon
 {
     public static class UpdateUtils
     {
-        public static bool CheckNeedsUpdate(Assembly applicationAssembly)
+        public static UpdateCheckResult UpdateCheck(Assembly applicationAssembly)
         {
             using var client = new WebClient();
 
-            var remoteVersion =
+            var remoteVersionStr =
                 client.DownloadString(
                     "https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/version");
 
-            return !remoteVersion.StartsWith(GetAssemblyVersion(applicationAssembly));
+            if (!Version.TryParse(remoteVersionStr, out var remoteVersion))
+            {
+                return UpdateCheckResult.RemoteVersionParsingFailed;
+            }
+
+            return remoteVersion < GetAssemblyVersion(applicationAssembly)
+                ? UpdateCheckResult.NeedsUpdate
+                : UpdateCheckResult.UpToDate;
         }
 
-        private static string GetAssemblyVersion(Assembly applicationAssembly)
+        private static Version GetAssemblyVersion(Assembly applicationAssembly)
         {
-            return applicationAssembly.GetName().Version.ToString();
+            return applicationAssembly.GetName().Version;
         }
 
         public static void OpenLatestReleaseInBrowser()

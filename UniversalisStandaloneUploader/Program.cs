@@ -15,7 +15,8 @@ namespace UniversalisStandaloneUploader
         [STAThread]
         public static void Main()
         {
-            if (UpdateUtils.CheckNeedsUpdate(Assembly.GetAssembly(typeof(Program))))
+            var updateCheckRes = UpdateUtils.UpdateCheck(Assembly.GetAssembly(typeof(Program)));
+            if (updateCheckRes == UpdateCheckResult.NeedsUpdate)
             {
                 var dlgResult = MessageBox.Show(
                     Resources.UniversalisNeedsUpdateLong,
