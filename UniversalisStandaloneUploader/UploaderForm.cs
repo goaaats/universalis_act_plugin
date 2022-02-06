@@ -1,6 +1,7 @@
 ﻿using Machina.FFXIV;
 using Machina.Infrastructure;
 using System;
+using System.Reflection;
 using System.Windows.Forms;
 using UniversalisCommon;
 using UniversalisStandaloneUploader.Properties;
@@ -39,16 +40,8 @@ namespace UniversalisStandaloneUploader
                 Settings.Default.FirstLaunch = false;
                 Settings.Default.Save();
 
-                MessageBox.Show(
-                    "Thank you for using the Universalis uploader!\n\n" +
-                    "Please don't forget to whitelist the uploader in your windows firewall, like you would with ACT.\n" +
-                    "It will not be able to process market board data otherwise.\n" +
-                    "To start uploading, log in with your character.", "Universalis Uploader", MessageBoxButtons.OK);
+                MessageBox.Show(Resources.FirstLaunchWelcome, Resources.UniversalisFormTitle, MessageBoxButtons.OK);
             }
-
-#if DEBUG
-            Log(Definitions.GetJson());
-#endif
         }
 
         private void UploaderForm_Resize(object sender, EventArgs e)
@@ -90,6 +83,38 @@ namespace UniversalisStandaloneUploader
 
         private void UploaderForm_Load(object sender, EventArgs e)
         {
+            try
+            {
+                var updateCheckRes = UpdateUtils.UpdateCheck(Assembly.GetAssembly(GetType()));
+                switch (updateCheckRes)
+                {
+                    case UpdateCheckResult.NeedsUpdate:
+                        var dlgResult = MessageBox.Show(
+                            Resources.UniversalisNeedsUpdateLong,
+                            Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OKCancel,
+                            MessageBoxIcon.Asterisk);
+
+                        if (dlgResult == DialogResult.OK)
+                        {
+                            UpdateUtils.OpenLatestReleaseInBrowser();
+                        }
+
+                        Log(
+                            "Plugin needs update. Please refrain from asking for plugin support before attempting to update.");
+                        break;
+                    case UpdateCheckResult.RemoteVersionParsingFailed:
+                        Log("Failed to parse remote version information. Please report this error.");
+                        break;
+                    case UpdateCheckResult.UpToDate:
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"[ERROR] Failed to perform update check:\n{ex}");
+            }
+
             try
             {
                 _packetProcessor = new PacketProcessor(ApiKey);
@@ -138,7 +163,7 @@ namespace UniversalisStandaloneUploader
 
         private void UploaderForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.WindowsShutDown || MessageBox.Show("Do you want to stop uploading market board data?", "Universalis Uploader",
+            if (e.CloseReason == CloseReason.WindowsShutDown || MessageBox.Show(Resources.AskStopUploadingData, Resources.UniversalisFormTitle,
                     MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
             {
                 try

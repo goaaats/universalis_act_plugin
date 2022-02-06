@@ -2,10 +2,9 @@
 using FFXIV_ACT_Plugin.Common;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -145,16 +144,29 @@ namespace UniversalisPlugin
 
             try
             {
-                if (UpdateUtils.CheckNeedsUpdate())
+                var updateCheckRes = UpdateUtils.UpdateCheck(Assembly.GetAssembly(GetType()));
+                switch (updateCheckRes)
                 {
-                    MessageBox.Show(
-                        Resources.UniversalisNeedsUpdateLong,
-                        Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                    Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
+                    case UpdateCheckResult.NeedsUpdate:
+                        var dlgResult = MessageBox.Show(
+                            Resources.UniversalisNeedsUpdateLong,
+                            Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
 
-                    Log("Plugin needs update.");
-                    lblStatus.Text = Resources.NeedsUpdate;
-                    return;
+                        if (dlgResult == DialogResult.OK)
+                        {
+                            UpdateUtils.OpenLatestReleaseInBrowser();
+                        }
+
+                        Log("Plugin needs update. Please refrain from asking for plugin support before attempting to update.");
+                        lblStatus.Text = Resources.NeedsUpdate;
+                        break;
+                    case UpdateCheckResult.RemoteVersionParsingFailed:
+                        Log("Failed to parse remote version information. Please report this error.");
+                        lblStatus.Text = Resources.UpdateCheckFailed;
+                        break;
+                    case UpdateCheckResult.UpToDate:
+                    default:
+                        break;
                 }
 
                 FFXIVPlugin = GetFFXIVPlugin();

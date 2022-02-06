@@ -143,6 +143,15 @@ namespace UniversalisPlugin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Update check failed..
+        /// </summary>
+        internal static string UpdateCheckFailed {
+            get {
+                return ResourceManager.GetString("UpdateCheckFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Uploaded Items: {0}.
         /// </summary>
         internal static string UploadedItemsCount {

@@ -61,12 +61,61 @@ namespace UniversalisStandaloneUploader.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Do you want to stop uploading market board data?.
+        /// </summary>
+        internal static string AskStopUploadingData {
+            get {
+                return ResourceManager.GetString("AskStopUploadingData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thank you for using the Universalis uploader!
+        ///
+        ///Please don&apos;t forget to whitelist the uploader in your windows firewall, like you would with ACT.
+        ///It will not be able to process market board data otherwise.
+        ///To start uploading, log in with your character..
+        /// </summary>
+        internal static string FirstLaunchWelcome {
+            get {
+                return ResourceManager.GetString("FirstLaunchWelcome", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap universalis_bodge {
             get {
                 object obj = ResourceManager.GetObject("universalis_bodge", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Universalis Uploader.
+        /// </summary>
+        internal static string UniversalisFormTitle {
+            get {
+                return ResourceManager.GetString("UniversalisFormTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Universalis plugin needs to be updated. Please download an updated version from the GitHub releases page..
+        /// </summary>
+        internal static string UniversalisNeedsUpdateLong {
+            get {
+                return ResourceManager.GetString("UniversalisNeedsUpdateLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Universalis plugin update.
+        /// </summary>
+        internal static string UniversalisNeedsUpdateLongCaption {
+            get {
+                return ResourceManager.GetString("UniversalisNeedsUpdateLongCaption", resourceCulture);
             }
         }
     }

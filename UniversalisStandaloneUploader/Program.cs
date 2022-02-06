@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Reflection;
 using System.Windows.Forms;
+using UniversalisCommon;
+using UniversalisStandaloneUploader.Properties;
 
 namespace UniversalisStandaloneUploader
 {
@@ -18,7 +22,6 @@ namespace UniversalisStandaloneUploader
 
             Application.Run();
 
-            
             uploaderForm.ShowTrayIcon();
         }
     }

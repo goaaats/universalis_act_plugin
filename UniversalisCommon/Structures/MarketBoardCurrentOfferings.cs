@@ -52,17 +52,18 @@ namespace Dalamud.Game.Network.Structures
 
             for (var i = 0; i < 10; i++)
             {
-                var listingEntry = new MarketBoardItemListing();
-
-                listingEntry.ListingId = reader.ReadUInt64();
-                listingEntry.RetainerId = reader.ReadUInt64();
-                listingEntry.RetainerOwnerId = reader.ReadUInt64();
-                listingEntry.ArtisanId = reader.ReadUInt64();
-                listingEntry.PricePerUnit = reader.ReadUInt32();
-                listingEntry.TotalTax = reader.ReadUInt32();
-                listingEntry.ItemQuantity = reader.ReadUInt32();
-                listingEntry.CatalogId = reader.ReadUInt32();
-                listingEntry.LastReviewTime = DateTimeOffset.UtcNow.AddSeconds(-reader.ReadUInt16()).DateTime;
+                var listingEntry = new MarketBoardItemListing
+                {
+                    ListingId = reader.ReadUInt64(),
+                    RetainerId = reader.ReadUInt64(),
+                    RetainerOwnerId = reader.ReadUInt64(),
+                    ArtisanId = reader.ReadUInt64(),
+                    PricePerUnit = reader.ReadUInt32(),
+                    TotalTax = reader.ReadUInt32(),
+                    ItemQuantity = reader.ReadUInt32(),
+                    CatalogId = reader.ReadUInt32(),
+                    LastReviewTime = DateTimeOffset.UtcNow.AddSeconds(-reader.ReadUInt16()).DateTime,
+                };
 
                 reader.ReadUInt16(); // container
                 reader.ReadUInt32(); // slot
@@ -75,9 +76,11 @@ namespace Dalamud.Game.Network.Structures
                 {
                     var materiaVal = reader.ReadUInt16();
 
-                    var materiaEntry = new MarketBoardItemListing.ItemMateria();
-                    materiaEntry.MateriaId = (materiaVal & 0xFF0) >> 4;
-                    materiaEntry.Index = materiaVal & 0xF;
+                    var materiaEntry = new MarketBoardItemListing.ItemMateria
+                    {
+                        MateriaId = (materiaVal & 0xFF0) >> 4,
+                        Index = materiaVal & 0xF,
+                    };
 
                     if (materiaEntry.MateriaId != 0)
                         listingEntry.Materia.Add(materiaEntry);
@@ -86,8 +89,8 @@ namespace Dalamud.Game.Network.Structures
                 reader.ReadUInt16();
                 reader.ReadUInt32();
 
-                listingEntry.RetainerName = Encoding.UTF8.GetString(reader.ReadBytes(32)).TrimEnd(new[] { '\u0000' });
-                listingEntry.PlayerName = Encoding.UTF8.GetString(reader.ReadBytes(32)).TrimEnd(new[] { '\u0000' });
+                listingEntry.RetainerName = Encoding.UTF8.GetString(reader.ReadBytes(32)).TrimEnd('\u0000');
+                listingEntry.PlayerName = Encoding.UTF8.GetString(reader.ReadBytes(32)).TrimEnd('\u0000');
                 listingEntry.IsHq = reader.ReadBoolean();
                 listingEntry.MateriaCount = reader.ReadByte();
                 listingEntry.OnMannequin = reader.ReadBoolean();

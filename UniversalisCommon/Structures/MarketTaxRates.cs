@@ -47,16 +47,18 @@ namespace Dalamud.Game.Network.Structures
         /// <summary>
         /// Read a <see cref="MarketTaxRates"/> object from memory.
         /// </summary>
-        /// <param name="dataPtr">Address to read.</param>
+        /// <param name="message">Data to read.</param>
         /// <returns>A new <see cref="MarketTaxRates"/> object.</returns>
         public static MarketTaxRates Read(byte[] message)
         {
             using var stream = new MemoryStream(message);
             using var reader = new BinaryReader(stream);
+            
+            var output = new MarketTaxRates
+            {
+                Category = reader.ReadUInt32(),
+            };
 
-            var output = new MarketTaxRates();
-
-            output.Category = reader.ReadUInt32();
             stream.Position += 4;
             output.LimsaLominsaTax = reader.ReadUInt32();
             output.GridaniaTax = reader.ReadUInt32();
