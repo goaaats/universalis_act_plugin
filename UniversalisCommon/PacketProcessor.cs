@@ -65,7 +65,7 @@ namespace UniversalisCommon
                     CatalogId = catalogId,
                     AmountToArrive = amount,
                     Listings = new List<MarketBoardCurrentOfferings.MarketBoardItemListing>(),
-                    History = new List<MarketBoardHistory.MarketBoardHistoryListing>()
+                    History = new List<MarketBoardHistory.MarketBoardHistoryListing>(),
                 });
 
                 Log?.Invoke(this, $"NEW MB REQUEST START: item#{catalogId} amount#{amount}");
