@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -145,7 +145,7 @@ namespace UniversalisPlugin
 
             try
             {
-                if (UpdateUtils.CheckNeedsUpdate())
+                if (UpdateUtils.CheckNeedsUpdate(Assembly.GetAssembly(GetType())))
                 {
                     MessageBox.Show(
                         Resources.UniversalisNeedsUpdateLong,
