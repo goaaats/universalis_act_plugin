@@ -152,7 +152,7 @@ namespace UniversalisPlugin
                         Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                     Process.Start("https://github.com/goaaats/universalis_act_plugin/releases/latest");
 
-                    Log("Plugin needs update.");
+                    Log("Plugin needs update. Please refrain from asking for plugin support before attempting to update.");
                     lblStatus.Text = Resources.NeedsUpdate;
                 }
 
