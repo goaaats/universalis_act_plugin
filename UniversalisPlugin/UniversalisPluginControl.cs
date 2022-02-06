@@ -154,7 +154,6 @@ namespace UniversalisPlugin
 
                     Log("Plugin needs update.");
                     lblStatus.Text = Resources.NeedsUpdate;
-                    return;
                 }
 
                 FFXIVPlugin = GetFFXIVPlugin();
