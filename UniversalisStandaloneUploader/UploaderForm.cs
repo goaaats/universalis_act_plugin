@@ -42,10 +42,6 @@ namespace UniversalisStandaloneUploader
 
                 MessageBox.Show(Resources.FirstLaunchWelcome, Resources.UniversalisFormTitle, MessageBoxButtons.OK);
             }
-
-#if DEBUG
-            Log(Definitions.GetJson());
-#endif
         }
 
         private void UploaderForm_Resize(object sender, EventArgs e)

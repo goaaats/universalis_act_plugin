@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Dalamud.Game.Network;
+﻿using Dalamud.Game.Network;
 using Dalamud.Game.Network.MarketBoardUploaders;
 using Dalamud.Game.Network.MarketBoardUploaders.Universalis;
 using Dalamud.Game.Network.Structures;
 using Dalamud.Game.Network.Universalis.MarketBoardUploaders;
 using Newtonsoft.Json;
-using UniversalisPlugin;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace UniversalisCommon
 {
@@ -58,7 +57,7 @@ namespace UniversalisCommon
 
             if (opCode == _definitions.MarketBoardItemRequestStart)
             {
-                var catalogId = (uint) BitConverter.ToInt32(message, 0x20);
+                var catalogId = (uint)BitConverter.ToInt32(message, 0x20);
                 var amount = message[0x2B];
 
                 _marketBoardRequests.Add(new MarketBoardItemRequest

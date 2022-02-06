@@ -1,22 +1,20 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net;
-using Newtonsoft.Json;
 
-namespace UniversalisPlugin
+namespace UniversalisCommon
 {
     public class Definitions
     {
-        public short PlayerSpawn = 0x0DC;
-        public short PlayerSetup = 0x3B4;
-        public short MarketBoardItemRequestStart = 0x349;
-        public short MarketBoardOfferings = 0x130;
-        public short MarketBoardHistory = 0x1F7;
-        public short MarketTaxRates = 0x273;
-        public short ContentIdNameMapResp = 0x172;
+        public short PlayerSpawn { get; set; }
+        public short PlayerSetup { get; set; }
+        public short MarketBoardItemRequestStart { get; set; }
+        public short MarketBoardOfferings { get; set; }
+        public short MarketBoardHistory { get; set; }
+        public short MarketTaxRates { get; set; }
+        public short ContentIdNameMapResp { get; set; }
 
         private static readonly Uri DefinitionStoreUrl = new Uri("https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/definitions.json");
-
-        public static string GetJson() => JsonConvert.SerializeObject(new Definitions());
 
         public static Definitions Get()
         {
