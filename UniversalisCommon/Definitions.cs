@@ -14,7 +14,7 @@ namespace UniversalisCommon
         public short MarketTaxRates { get; set; }
         public short ContentIdNameMapResp { get; set; }
 
-        private static readonly Uri DefinitionStoreUrl = new Uri("https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/definitions.json");
+        private static readonly Uri DefinitionStoreUrl = new Uri(RemoteDataLocations.OpcodeDefinitions);
 
         public static Definitions Get()
         {

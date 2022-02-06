@@ -12,8 +12,7 @@ namespace UniversalisCommon
             using var client = new WebClient();
 
             var remoteVersionStr =
-                client.DownloadString(
-                    "https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/version");
+                client.DownloadString(RemoteDataLocations.Version);
 
             if (!Version.TryParse(remoteVersionStr, out var remoteVersion))
             {
