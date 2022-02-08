@@ -100,7 +100,7 @@ namespace UniversalisStandaloneUploader
                         }
 
                         Log(
-                            "Plugin needs update. Please refrain from asking for plugin support before attempting to update.");
+                            "Application needs update. Please refrain from asking for support before attempting to update.");
                         break;
                     case UpdateCheckResult.RemoteVersionParsingFailed:
                         Log("Failed to parse remote version information. Please report this error.");

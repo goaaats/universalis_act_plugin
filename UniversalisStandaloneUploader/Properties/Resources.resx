@@ -122,19 +122,19 @@
     <value>..\Resources\universalis_bodge.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="UniversalisNeedsUpdateLong" xml:space="preserve">
-	  <value>The Universalis plugin needs to be updated. Please download an updated version from the GitHub releases page.</value>
+    <value>The Universalis uploader needs to be updated. Please download an updated version from the GitHub releases page.</value>
   </data>
   <data name="UniversalisNeedsUpdateLongCaption" xml:space="preserve">
-	  <value>Universalis plugin update</value>
+    <value>Universalis Uploader Update</value>
   </data>
   <data name="AskStopUploadingData" xml:space="preserve">
-	  <value>Do you want to stop uploading market board data?</value>
+    <value>Do you want to stop uploading market board data?</value>
   </data>
   <data name="UniversalisFormTitle" xml:space="preserve">
-	  <value>Universalis Uploader</value>
+    <value>Universalis Uploader</value>
   </data>
   <data name="FirstLaunchWelcome" xml:space="preserve">
-	  <value>Thank you for using the Universalis uploader!
+    <value>Thank you for using the Universalis uploader!
 
 Please don't forget to whitelist the uploader in your windows firewall, like you would with ACT.
 It will not be able to process market board data otherwise.
