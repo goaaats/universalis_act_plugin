@@ -1,7 +1,6 @@
 ﻿using Machina.FFXIV;
 using Machina.Infrastructure;
 using System;
-using System.Reflection;
 using System.Windows.Forms;
 using UniversalisCommon;
 using UniversalisStandaloneUploader.Properties;
@@ -14,6 +13,9 @@ namespace UniversalisStandaloneUploader
         private PacketProcessor _packetProcessor;
 
         private const string ApiKey = "xQAqN1PTellr4hZQfbgeIwp4zDCutFFUferOHBuN";
+
+        public UpdateCheckResult UpdateCheckRes { get; set; }
+        public Exception UpdateCheckException { get; set; }
 
         public UploaderForm()
         {
@@ -83,36 +85,23 @@ namespace UniversalisStandaloneUploader
 
         private void UploaderForm_Load(object sender, EventArgs e)
         {
-            try
+            switch (UpdateCheckRes)
             {
-                var updateCheckRes = UpdateUtils.UpdateCheck(Assembly.GetAssembly(GetType()));
-                switch (updateCheckRes)
-                {
-                    case UpdateCheckResult.NeedsUpdate:
-                        var dlgResult = MessageBox.Show(
-                            Resources.UniversalisNeedsUpdateLong,
-                            Resources.UniversalisNeedsUpdateLongCaption, MessageBoxButtons.OKCancel,
-                            MessageBoxIcon.Asterisk);
-
-                        if (dlgResult == DialogResult.OK)
-                        {
-                            UpdateUtils.OpenLatestReleaseInBrowser();
-                        }
-
-                        Log(
-                            "Application needs update. Please refrain from asking for support before attempting to update.");
-                        break;
-                    case UpdateCheckResult.RemoteVersionParsingFailed:
-                        Log("Failed to parse remote version information. Please report this error.");
-                        break;
-                    case UpdateCheckResult.UpToDate:
-                    default:
-                        break;
-                }
+                case UpdateCheckResult.NeedsUpdate:
+                    Log(
+                        "Application needs update. Please refrain from asking for support before attempting to update.");
+                    break;
+                case UpdateCheckResult.RemoteVersionParsingFailed:
+                    Log("Failed to parse remote version information. Please report this error.");
+                    break;
+                case UpdateCheckResult.UpToDate:
+                default:
+                    break;
             }
-            catch (Exception ex)
+
+            if (UpdateCheckException != null)
             {
-                Log($"[ERROR] Failed to perform update check:\n{ex}");
+                Log($"[ERROR] Failed to perform update check:\n{UpdateCheckException}");
             }
 
             try

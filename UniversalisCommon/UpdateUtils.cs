@@ -19,7 +19,6 @@ namespace UniversalisCommon
             }
 
             var assemblyVersion = GetAssemblyVersion(applicationAssembly);
-
             return assemblyVersion < remoteVersion
                 ? UpdateCheckResult.NeedsUpdate
                 : UpdateCheckResult.UpToDate;
