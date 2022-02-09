@@ -169,9 +169,14 @@ namespace UniversalisPlugin
                         break;
                 }
 
-                FFXIVPlugin = GetFFXIVPlugin();
+                var ffxivPlugin = GetFFXIVPlugin();
+                FFXIVPlugin = ffxivPlugin;
 
-                _universalisPacketProcessor = new PacketProcessor(ApiKey);
+                _universalisPacketProcessor = new PacketProcessor(ApiKey)
+                {
+                    LocalContentId = ffxivPlugin.DataRepository.GetCurrentPlayerID(),
+                };
+
                 _universalisPacketProcessor.Log += (_, message) => Log(message);
                 _universalisPacketProcessor.LocalContentIdUpdated += (_, cid) => LastSavedContentId = (long)cid;
                 _universalisPacketProcessor.LocalContentId = (ulong)LastSavedContentId;
@@ -224,14 +229,14 @@ namespace UniversalisPlugin
             }
         }
 
-        private static object GetFFXIVPlugin()
+        private static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin GetFFXIVPlugin()
         {
             var plugins = ActGlobals.oFormActMain.ActPlugins;
-            object ffxivPlugin = plugins
-                .Where(p => p.pluginFile.Name.ToUpper().Contains(nameof(FFXIV_ACT_Plugin).ToUpper()))
-                .FirstOrDefault(p => p.pluginObj is FFXIV_ACT_Plugin.FFXIV_ACT_Plugin)?.pluginObj;
 
-            if (ffxivPlugin == null)
+            if (plugins
+                    .Where(p => p.pluginFile.Name.ToUpper().Contains(nameof(FFXIV_ACT_Plugin).ToUpper()))
+                    .FirstOrDefault(p => p.pluginObj is FFXIV_ACT_Plugin.FFXIV_ACT_Plugin)
+                    ?.pluginObj is not FFXIV_ACT_Plugin.FFXIV_ACT_Plugin ffxivPlugin)
             {
                 throw new Exception("Could not find FFXIV plugin. Make sure that it is loaded before Universalis.");
             }
