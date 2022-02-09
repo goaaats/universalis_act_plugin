@@ -102,7 +102,7 @@ namespace UniversalisStandaloneUploader.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The Universalis plugin needs to be updated. Please download an updated version from the GitHub releases page..
+        ///   Looks up a localized string similar to The Universalis uploader needs to be updated. Please download an updated version from the GitHub releases page..
         /// </summary>
         internal static string UniversalisNeedsUpdateLong {
             get {
@@ -111,7 +111,7 @@ namespace UniversalisStandaloneUploader.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Universalis plugin update.
+        ///   Looks up a localized string similar to Universalis Uploader Update.
         /// </summary>
         internal static string UniversalisNeedsUpdateLongCaption {
             get {

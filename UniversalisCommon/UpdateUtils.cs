@@ -13,13 +13,13 @@ namespace UniversalisCommon
 
             var remoteVersionStr =
                 client.DownloadString(RemoteDataLocations.Version);
-
             if (!Version.TryParse(remoteVersionStr, out var remoteVersion))
             {
                 return UpdateCheckResult.RemoteVersionParsingFailed;
             }
 
-            return remoteVersion < GetAssemblyVersion(applicationAssembly)
+            var assemblyVersion = GetAssemblyVersion(applicationAssembly);
+            return assemblyVersion < remoteVersion
                 ? UpdateCheckResult.NeedsUpdate
                 : UpdateCheckResult.UpToDate;
         }
