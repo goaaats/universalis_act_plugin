@@ -1,6 +1,8 @@
 ﻿using Machina.FFXIV;
 using Machina.Infrastructure;
 using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using UniversalisCommon;
 using UniversalisStandaloneUploader.Properties;
@@ -146,6 +148,12 @@ namespace UniversalisStandaloneUploader
 
             if (winPCapCheckBox.Checked)
                 _ffxivNetworkMonitor.MonitorType = NetworkMonitorType.WinPCap;
+            
+            var window = FindWindow("FFXIVGAME", null);
+            GetWindowThreadProcessId(window, out var pid);
+            var proc = Process.GetProcessById(Convert.ToInt32(pid));
+            var gamePath = proc.MainModule?.FileName;
+            _ffxivNetworkMonitor.FFXIVDX11ExecutablePath = gamePath;
 
             _ffxivNetworkMonitor.Start();
         }
@@ -186,5 +194,11 @@ namespace UniversalisStandaloneUploader
                 Log($"[ERROR] Could not re-initialize network monitor:\n{ex}");
             }
         }
+        
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+        
+        [DllImport("user32.dll", SetLastError=true)]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
     }
 }
