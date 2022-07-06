@@ -153,7 +153,7 @@ namespace UniversalisStandaloneUploader
             GetWindowThreadProcessId(window, out var pid);
             var proc = Process.GetProcessById(Convert.ToInt32(pid));
             var gamePath = proc.MainModule?.FileName;
-            _ffxivNetworkMonitor.FFXIVDX11ExecutablePath = gamePath;
+            _ffxivNetworkMonitor.OodlePath = gamePath;
 
             _ffxivNetworkMonitor.Start();
         }
