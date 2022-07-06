@@ -2,8 +2,6 @@
   <Costura>
   	<IncludeAssemblies>
         Newtonsoft.Json
-        Machina
-        Machina.FFXIV
         UniversalisCommon
     </IncludeAssemblies>
   </Costura>
