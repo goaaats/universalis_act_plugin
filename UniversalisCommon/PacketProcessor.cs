@@ -7,7 +7,11 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
+using AsyncAwaitBestPractices;
+using Polly;
 
 namespace UniversalisCommon
 {
@@ -16,7 +20,7 @@ namespace UniversalisCommon
         private readonly List<MarketBoardItemRequest> _marketBoardRequests = new List<MarketBoardItemRequest>();
         private readonly IMarketBoardUploader _uploader;
 
-        private readonly IDictionary<short, Func<byte[], bool>> _packetHandlers;
+        private IDictionary<short, Func<byte[], bool>> _packetHandlers;
 
         public uint CurrentWorldId { get; set; }
         public ulong LocalContentId { get; set; }
@@ -29,17 +33,38 @@ namespace UniversalisCommon
         {
             _uploader = new UniversalisMarketBoardUploader(this, apiKey);
 
-            var definitions = Definitions.Get();
-            _packetHandlers = new Dictionary<short, Func<byte[], bool>>
-            {
-                { definitions.PlayerSpawn, ProcessPlayerSpawn },
-                { definitions.PlayerSetup, ProcessPlayerSetup },
-                { definitions.MarketBoardItemRequestStart, ProcessMarketBoardItemRequestStart },
-                { definitions.MarketBoardOfferings, ProcessMarketBoardOfferings },
-                { definitions.MarketBoardHistory, ProcessMarketBoardHistory },
-                { definitions.MarketTaxRates, ProcessMarketTaxRates },
-                { definitions.ContentIdNameMapResp, ProcessContentIdNameMapResp },
-            };
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            var policy = Policy
+                .Handle<WebException>()
+                .WaitAndRetryForeverAsync(
+                    retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    onRetry: (exception, retryCount, _) =>
+                    {
+                        Log?.Invoke(this,
+                            $"[WARN] Failed to fetch opcode definitions (attempt #{retryCount}); retrying...\n{exception.Message}");
+                    });
+            policy
+                .ExecuteAsync(() => Task.Run(() =>
+                {
+                    var definitions = Definitions.Get();
+                    _packetHandlers = new Dictionary<short, Func<byte[], bool>>
+                    {
+                        { definitions.PlayerSpawn, ProcessPlayerSpawn },
+                        { definitions.PlayerSetup, ProcessPlayerSetup },
+                        { definitions.MarketBoardItemRequestStart, ProcessMarketBoardItemRequestStart },
+                        { definitions.MarketBoardOfferings, ProcessMarketBoardOfferings },
+                        { definitions.MarketBoardHistory, ProcessMarketBoardHistory },
+                        { definitions.MarketTaxRates, ProcessMarketTaxRates },
+                        { definitions.ContentIdNameMapResp, ProcessContentIdNameMapResp },
+                    };
+                }))
+                .SafeFireAndForget(
+                    continueOnCapturedContext: true,
+                    onException: ex => Log?.Invoke(this, $"[ERROR] Could not fetch opcode definitions:\n{ex}"));
         }
 
         /// <summary>
@@ -49,6 +74,11 @@ namespace UniversalisCommon
         /// <returns>True if an upload succeeded</returns>
         public bool ProcessZonePacket(byte[] message)
         {
+            if (_packetHandlers == null)
+            {
+                return false;
+            }
+
             var opcode = BitConverter.ToInt16(message, 0x12);
             return _packetHandlers.TryGetValue(opcode, out var handler) && handler(message);
         }
@@ -207,11 +237,25 @@ namespace UniversalisCommon
                 try
                 {
                     _uploader.Upload(request);
+                    Log?.Invoke(this, "Market Board data upload completed.");
                     return true;
+                }
+                catch (WebException ex) when (ex.Response is HttpWebResponse res && (int)res.StatusCode >= 500)
+                {
+                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed due to a server error:\n{ex.Message}");
+                }
+                catch (WebException ex) when (ex.Response is HttpWebResponse res && (int)res.StatusCode >= 400 &&
+                                              (int)res.StatusCode < 500)
+                {
+                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed due to a client error:\n{ex.Message}");
+                }
+                catch (WebException ex)
+                {
+                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed:\n{ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    Log?.Invoke(this, "[ERROR] Market Board data upload failed:\n" + ex);
+                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed:\n{ex}");
                 }
             }
 

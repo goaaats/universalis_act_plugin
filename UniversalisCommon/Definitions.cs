@@ -23,17 +23,9 @@ namespace UniversalisCommon
         public static Definitions Get()
         {
             using var client = new WebClient();
-            try
-            {
-                var definitionJson = client.DownloadString(DefinitionStoreUrl);
-                var deserializedDefinition = JsonConvert.DeserializeObject<Definitions>(definitionJson);
-
-                return deserializedDefinition;
-            }
-            catch (WebException exc)
-            {
-                throw new Exception("Could not get definitions for Universalis.", exc);
-            }
+            var definitionJson = client.DownloadString(DefinitionStoreUrl);
+            var deserializedDefinition = JsonConvert.DeserializeObject<Definitions>(definitionJson);
+            return deserializedDefinition;
         }
     }
 }

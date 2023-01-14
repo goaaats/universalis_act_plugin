@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Reflection;
+using Polly;
 
 namespace UniversalisCommon
 {
@@ -11,9 +12,17 @@ namespace UniversalisCommon
         {
             using var client = new WebClient();
 
-            var remoteVersionStr =
-                client.DownloadString(RemoteDataLocations.Version);
-            if (!Version.TryParse(remoteVersionStr, out var remoteVersion))
+            var remoteVersionStr = Policy
+                .Handle<WebException>()
+                .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1))
+                // ReSharper disable once AccessToDisposedClosure
+                .ExecuteAndCapture(() => DownloadVersion(client));
+            if (remoteVersionStr.Outcome == OutcomeType.Failure)
+            {
+                throw remoteVersionStr.FinalException;
+            }
+
+            if (!Version.TryParse(remoteVersionStr.Result, out var remoteVersion))
             {
                 return UpdateCheckResult.RemoteVersionParsingFailed;
             }
@@ -22,6 +31,11 @@ namespace UniversalisCommon
             return assemblyVersion < remoteVersion
                 ? UpdateCheckResult.NeedsUpdate
                 : UpdateCheckResult.UpToDate;
+        }
+
+        private static string DownloadVersion(WebClient client)
+        {
+            return client.DownloadString(RemoteDataLocations.Version);
         }
 
         private static Version GetAssemblyVersion(Assembly applicationAssembly)
