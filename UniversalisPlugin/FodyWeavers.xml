@@ -1,7 +1,11 @@
 ﻿<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
   <Costura>
   	<IncludeAssemblies>
+        AsyncAwaitBestPractices
         Newtonsoft.Json
+        Polly
+        System.Runtime.CompilerServices.Unsafe
+        System.Threading.Tasks.Extensions
         UniversalisCommon
     </IncludeAssemblies>
   </Costura>
