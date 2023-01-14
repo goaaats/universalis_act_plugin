@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Net;
 using Dalamud.Game.Network.MarketBoardUploaders;
 using Dalamud.Game.Network.MarketBoardUploaders.Universalis;
-using Dalamud.Game.Network.Structures;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Polly;
+using Polly.Timeout;
 using UniversalisCommon;
 
 namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
@@ -32,7 +33,7 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
 
             var listingsRequestObject = new UniversalisItemListingsUploadRequest
             {
-                WorldId = (int) _packetProcessor.CurrentWorldId,
+                WorldId = (int)_packetProcessor.CurrentWorldId,
                 UploaderId = uploader,
                 ItemId = request.CatalogId,
                 Listings = new List<UniversalisItemListingsEntry>(),
@@ -50,7 +51,7 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                     CreatorId = marketBoardItemListing.ArtisanId,
                     CreatorName = marketBoardItemListing.PlayerName,
                     OnMannequin = marketBoardItemListing.OnMannequin,
-                    LastReviewTime = ((DateTimeOffset) marketBoardItemListing.LastReviewTime).ToUnixTimeSeconds(),
+                    LastReviewTime = ((DateTimeOffset)marketBoardItemListing.LastReviewTime).ToUnixTimeSeconds(),
                     PricePerUnit = marketBoardItemListing.PricePerUnit,
                     Quantity = marketBoardItemListing.ItemQuantity,
                     RetainerCity = marketBoardItemListing.RetainerCityId,
@@ -68,12 +69,11 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
             }
 
             client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-            var upload = JsonConvert.SerializeObject(listingsRequestObject);
-            client.UploadString(ApiBase + $"/upload/{_apiKey}", "POST", upload);
+            SubmitData(client, listingsRequestObject);
 
             var historyRequestObject = new UniversalisHistoryUploadRequest
             {
-                WorldId = (int) _packetProcessor.CurrentWorldId,
+                WorldId = (int)_packetProcessor.CurrentWorldId,
                 UploaderId = uploader,
                 ItemId = request.CatalogId,
                 Entries = new List<UniversalisHistoryEntry>(),
@@ -87,13 +87,11 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                     OnMannequin = marketBoardHistoryListing.OnMannequin,
                     PricePerUnit = marketBoardHistoryListing.SalePrice,
                     Quantity = marketBoardHistoryListing.Quantity,
-                    Timestamp = ((DateTimeOffset) marketBoardHistoryListing.PurchaseTime).ToUnixTimeSeconds(),
+                    Timestamp = ((DateTimeOffset)marketBoardHistoryListing.PurchaseTime).ToUnixTimeSeconds(),
                 });
 
             client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-
-            var historyUpload = JsonConvert.SerializeObject(historyRequestObject);
-            client.UploadString(ApiBase + $"/upload/{_apiKey}", "POST", historyUpload);
+            SubmitData(client, historyRequestObject);
 
             _packetProcessor.Log?.Invoke(this,
                 $"Universalis data upload for item#{request.CatalogId} to world#{historyRequestObject.WorldId} completed.");
@@ -103,7 +101,7 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
         {
             using var client = new WebClient();
             client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-            client.UploadString(ApiBase + $"/upload/{_apiKey}", "POST", JsonConvert.SerializeObject(taxRatesRequest));
+            SubmitData(client, taxRatesRequest);
         }
 
         public void UploadCrafterName(ulong contentId, string name)
@@ -116,7 +114,24 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
             crafterNameObj.characterName = name;
 
             client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-            client.UploadString(ApiBase + $"/upload/{_apiKey}", "POST", JsonConvert.SerializeObject(crafterNameObj));
+            SubmitData(client, crafterNameObj);
+        }
+
+        private void SubmitData<T>(WebClient client, T data)
+        {
+            var remoteVersionStr = Policy
+                .Handle<WebException>()
+                .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1))
+                .ExecuteAndCapture(() => UploadData(client, data));
+            if (remoteVersionStr.Outcome == OutcomeType.Failure)
+            {
+                throw remoteVersionStr.FinalException;
+            }
+        }
+
+        private void UploadData<T>(WebClient client, T data)
+        {
+            client.UploadString(ApiBase + $"/upload/{_apiKey}", "POST", JsonConvert.SerializeObject(data));
         }
     }
 }
