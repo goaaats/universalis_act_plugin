@@ -3,6 +3,7 @@ using Machina.Infrastructure;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using UniversalisCommon;
 using UniversalisStandaloneUploader.Properties;
@@ -18,6 +19,9 @@ namespace UniversalisStandaloneUploader
 
         public UpdateCheckResult UpdateCheckRes { get; set; }
         public Exception UpdateCheckException { get; set; }
+
+        private bool InitializedCapture { get; set; }
+        private Thread InitializeThread { get; set; }
 
         public UploaderForm()
         {
@@ -80,6 +84,7 @@ namespace UniversalisStandaloneUploader
         {
             Show();
         }
+
         public void Log(string text)
         {
             logTextBox.AppendText($"{text}\n");
@@ -122,7 +127,15 @@ namespace UniversalisStandaloneUploader
                 _packetProcessor.LocalContentId = Settings.Default.LastContentId;
                 _packetProcessor.RequestContentIdUpdate = RequestContentIdUpdate;
 
-                InitializeNetworkMonitor();
+                InitializeThread = new Thread(() =>
+                {
+                    while (!InitializedCapture)
+                    {
+                        InitializeNetworkMonitor();
+                        Thread.Sleep(TimeSpan.FromSeconds(1));
+                    }
+                });
+                InitializeThread.Start();
 
                 Log("Uploader initialized.");
             }
@@ -138,7 +151,16 @@ namespace UniversalisStandaloneUploader
 
         private void InitializeNetworkMonitor()
         {
-            _ffxivNetworkMonitor?.Stop();
+            try
+            {
+                _ffxivNetworkMonitor?.Stop();
+            }
+            catch (NullReferenceException)
+            {
+                // This happens internally in Machina when the monitor is stopped before it
+                // has been started - we can either store additional state or just catch the
+                // exception here.
+            }
 
             _ffxivNetworkMonitor = new FFXIVNetworkMonitor();
             _ffxivNetworkMonitor.MessageReceivedEventHandler += (connection, epoch, message) =>
@@ -147,20 +169,33 @@ namespace UniversalisStandaloneUploader
             _ffxivNetworkMonitor.MonitorType = NetworkMonitorType.RawSocket;
 
             if (winPCapCheckBox.Checked)
+            {
                 _ffxivNetworkMonitor.MonitorType = NetworkMonitorType.WinPCap;
-            
+            }
+
             var window = FindWindow("FFXIVGAME", null);
-            GetWindowThreadProcessId(window, out var pid);
+            if (window == IntPtr.Zero)
+            {
+                return;
+            }
+
+            if (0 == GetWindowThreadProcessId(window, out var pid) || pid == 0)
+            {
+                return;
+            }
+
             var proc = Process.GetProcessById(Convert.ToInt32(pid));
             var gamePath = proc.MainModule?.FileName;
             _ffxivNetworkMonitor.OodlePath = gamePath;
 
             _ffxivNetworkMonitor.Start();
+            InitializedCapture = true;
         }
 
         private void UploaderForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.WindowsShutDown || MessageBox.Show(Resources.AskStopUploadingData, Resources.UniversalisFormTitle,
+            if (e.CloseReason == CloseReason.WindowsShutDown || MessageBox.Show(Resources.AskStopUploadingData,
+                    Resources.UniversalisFormTitle,
                     MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
             {
                 try
@@ -194,11 +229,11 @@ namespace UniversalisStandaloneUploader
                 Log($"[ERROR] Could not re-initialize network monitor:\n{ex}");
             }
         }
-        
+
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-        
-        [DllImport("user32.dll", SetLastError=true)]
+
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
     }
 }
