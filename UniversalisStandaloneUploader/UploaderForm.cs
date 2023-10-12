@@ -114,18 +114,7 @@ namespace UniversalisStandaloneUploader
             try
             {
                 _packetProcessor = new PacketProcessor(ApiKey);
-                _packetProcessor.Log += (o, message) =>
-                    BeginInvoke(new Action(() => Log(message)));
-
-                _packetProcessor.LocalContentIdUpdated += (o, cid) =>
-                    BeginInvoke(new Action(() =>
-                    {
-                        Settings.Default.LastContentId = cid;
-                        Settings.Default.Save();
-                    }));
-
-                _packetProcessor.LocalContentId = Settings.Default.LastContentId;
-                _packetProcessor.RequestContentIdUpdate = RequestContentIdUpdate;
+                _packetProcessor.Log += (_, message) => BeginInvoke(new Action(() => Log(message)));
 
                 InitializeThread = new Thread(() =>
                 {
@@ -145,10 +134,6 @@ namespace UniversalisStandaloneUploader
             }
         }
 
-        private static void RequestContentIdUpdate(object sender, EventArgs e)
-        {
-        }
-
         private void InitializeNetworkMonitor()
         {
             try
@@ -163,7 +148,7 @@ namespace UniversalisStandaloneUploader
             }
 
             _ffxivNetworkMonitor = new FFXIVNetworkMonitor();
-            _ffxivNetworkMonitor.MessageReceivedEventHandler += (connection, epoch, message) =>
+            _ffxivNetworkMonitor.MessageReceivedEventHandler += (_, _, message) =>
                 _packetProcessor?.ProcessZonePacket(message);
 
             _ffxivNetworkMonitor.MonitorType = NetworkMonitorType.RawSocket;

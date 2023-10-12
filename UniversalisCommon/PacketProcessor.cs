@@ -23,15 +23,14 @@ namespace UniversalisCommon
         private IDictionary<short, Func<byte[], bool>> _packetHandlers;
 
         public uint CurrentWorldId { get; set; }
-        public ulong LocalContentId { get; set; }
+        public string UploaderId { get; set; }
 
         public EventHandler<string> Log;
-        public EventHandler<ulong> LocalContentIdUpdated;
-        public EventHandler RequestContentIdUpdate;
 
         public PacketProcessor(string apiKey)
         {
             _uploader = new UniversalisMarketBoardUploader(this, apiKey);
+            UploaderId = Guid.NewGuid().ToString().Replace("-", "");
 
             Initialize();
         }
@@ -54,7 +53,6 @@ namespace UniversalisCommon
                     _packetHandlers = new Dictionary<short, Func<byte[], bool>>
                     {
                         { definitions.PlayerSpawn, ProcessPlayerSpawn },
-                        { definitions.PlayerSetup, ProcessPlayerSetup },
                         { definitions.MarketBoardItemRequestStart, ProcessMarketBoardItemRequestStart },
                         { definitions.MarketBoardOfferings, ProcessMarketBoardOfferings },
                         { definitions.MarketBoardHistory, ProcessMarketBoardHistory },
@@ -111,7 +109,7 @@ namespace UniversalisCommon
 
             var request = new UniversalisTaxDataUploadRequest
             {
-                UploaderId = LocalContentId.ToString("X"),
+                UploaderId = UploaderId,
                 WorldId = CurrentWorldId,
                 TaxData = new UniversalisTaxData
                 {
@@ -221,17 +219,6 @@ namespace UniversalisCommon
                     return false;
                 }
 
-                RequestContentIdUpdate?.Invoke(this, null);
-
-                if (LocalContentId == 0)
-                {
-                    Log?.Invoke(this,
-                        "[ERROR] Not sure about your character information. Please log in once with your character while having the program open to verify it.");
-                    //return false;
-                }
-
-                LocalContentIdUpdated?.Invoke(this, LocalContentId);
-
                 Log?.Invoke(this,
                     $"Market Board request finished, starting upload: request#{request.ListingsRequestId} item#{request.CatalogId} amount#{request.AmountToArrive}");
                 try
@@ -276,14 +263,6 @@ namespace UniversalisCommon
             });
 
             Log?.Invoke(this, $"NEW MB REQUEST START: item#{catalogId} amount#{amount}");
-            return false;
-        }
-
-        private bool ProcessPlayerSetup(byte[] message)
-        {
-            LocalContentId = BitConverter.ToUInt64(message, 0x20);
-            Log?.Invoke(this, $"New CID: {LocalContentId:X}");
-            LocalContentIdUpdated?.Invoke(this, LocalContentId);
             return false;
         }
 
