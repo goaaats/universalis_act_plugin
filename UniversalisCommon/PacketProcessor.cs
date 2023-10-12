@@ -158,9 +158,11 @@ namespace UniversalisCommon
             }
 
             request.History.AddRange(listing.HistoryListings);
+            request.HistoryReceived = true;
 
             Log?.Invoke(this, $"Added history for item#{listing.CatalogId}");
-            return false;
+
+            return request.IsDone && SendCurrentRequest(request);
         }
 
         private bool ProcessMarketBoardOfferings(byte[] message)
@@ -210,40 +212,42 @@ namespace UniversalisCommon
             Log?.Invoke(this,
                 $"Added {listing.ItemListings.Count} ItemListings to request#{request.ListingsRequestId}, now {request.Listings.Count}/{request.AmountToArrive}, item#{request.CatalogId}");
 
-            if (request.IsDone)
-            {
-                if (CurrentWorldId == 0)
-                {
-                    Log?.Invoke(this,
-                        "[ERROR] Not sure about your current world. Please move your character between zones once to start uploading.");
-                    return false;
-                }
+            return request.IsDone && SendCurrentRequest(request);
+        }
 
+        private bool SendCurrentRequest(MarketBoardItemRequest request)
+        {
+            if (CurrentWorldId == 0)
+            {
                 Log?.Invoke(this,
-                    $"Market Board request finished, starting upload: request#{request.ListingsRequestId} item#{request.CatalogId} amount#{request.AmountToArrive}");
-                try
-                {
-                    _uploader.Upload(request);
-                    Log?.Invoke(this, "Market Board data upload completed.");
-                    return true;
-                }
-                catch (WebException ex) when (ex.Response is HttpWebResponse res && (int)res.StatusCode >= 500)
-                {
-                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed due to a server error:\n{ex.Message}");
-                }
-                catch (WebException ex) when (ex.Response is HttpWebResponse res && (int)res.StatusCode >= 400 &&
-                                              (int)res.StatusCode < 500)
-                {
-                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed due to a client error:\n{ex.Message}");
-                }
-                catch (WebException ex)
-                {
-                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed:\n{ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed:\n{ex}");
-                }
+                    "[ERROR] Not sure about your current world. Please move your character between zones once to start uploading.");
+                return false;
+            }
+
+            Log?.Invoke(this,
+                $"Market Board request finished, starting upload: request#{request.ListingsRequestId} item#{request.CatalogId} amount#{request.AmountToArrive}");
+            try
+            {
+                _uploader.Upload(request);
+                Log?.Invoke(this, "Market Board data upload completed.");
+                return true;
+            }
+            catch (WebException ex) when (ex.Response is HttpWebResponse res && (int)res.StatusCode >= 500)
+            {
+                Log?.Invoke(this, $"[ERROR] Market Board data upload failed due to a server error:\n{ex.Message}");
+            }
+            catch (WebException ex) when (ex.Response is HttpWebResponse res && (int)res.StatusCode >= 400 &&
+                                          (int)res.StatusCode < 500)
+            {
+                Log?.Invoke(this, $"[ERROR] Market Board data upload failed due to a client error:\n{ex.Message}");
+            }
+            catch (WebException ex)
+            {
+                Log?.Invoke(this, $"[ERROR] Market Board data upload failed:\n{ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Log?.Invoke(this, $"[ERROR] Market Board data upload failed:\n{ex}");
             }
 
             return false;

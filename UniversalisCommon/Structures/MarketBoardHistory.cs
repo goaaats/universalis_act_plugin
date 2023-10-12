@@ -27,32 +27,42 @@ namespace Dalamud.Game.Network.Structures
 
         public static MarketBoardHistory Read(byte[] message)
         {
-            var output = new MarketBoardHistory();
-
             using var stream = new MemoryStream(message);
             using var reader = new BinaryReader(stream);
-            output.CatalogId = reader.ReadUInt32();
-            output.CatalogId2 = reader.ReadUInt32();
 
-            output.HistoryListings = new List<MarketBoardHistoryListing>();
-
-            for (var i = 0; i < 10; i++)
+            var output = new MarketBoardHistory
             {
-                var listingEntry = new MarketBoardHistoryListing();
+                CatalogId = reader.ReadUInt32(),
+                CatalogId2 = reader.ReadUInt32(),
+                HistoryListings = new List<MarketBoardHistoryListing>(),
+            };
 
-                listingEntry.SalePrice = reader.ReadUInt32();
-                listingEntry.PurchaseTime = DateTimeOffset.FromUnixTimeSeconds(reader.ReadUInt32()).UtcDateTime;
-                listingEntry.Quantity = reader.ReadUInt32();
-                listingEntry.IsHq = reader.ReadBoolean();
+            if (output.CatalogId2 == 0)
+            {
+                // No sales for this item yet
+                return output;
+            }
+
+            for (var i = 0; i < 20; i++)
+            {
+                var listingEntry = new MarketBoardHistoryListing
+                {
+                    SalePrice = reader.ReadUInt32(),
+                    PurchaseTime = DateTimeOffset.FromUnixTimeSeconds(reader.ReadUInt32()).UtcDateTime,
+                    Quantity = reader.ReadUInt32(),
+                    IsHq = reader.ReadBoolean(),
+                };
 
                 reader.ReadBoolean();
 
                 listingEntry.OnMannequin = reader.ReadBoolean();
-                listingEntry.BuyerName = Encoding.UTF8.GetString(reader.ReadBytes(33)).TrimEnd(new[] { '\u0000' });
+                listingEntry.BuyerName = Encoding.UTF8.GetString(reader.ReadBytes(33)).TrimEnd('\u0000');
                 listingEntry.CatalogId = reader.ReadUInt32();
 
-                if (listingEntry.CatalogId != 0)
-                    output.HistoryListings.Add(listingEntry);
+                output.HistoryListings.Add(listingEntry);
+
+                if (listingEntry.CatalogId == 0)
+                    break;
             }
 
             return output;
