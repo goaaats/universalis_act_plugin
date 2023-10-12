@@ -172,14 +172,8 @@ namespace UniversalisPlugin
                 var ffxivPlugin = GetFFXIVPlugin();
                 FFXIVPlugin = ffxivPlugin;
 
-                _universalisPacketProcessor = new PacketProcessor(ApiKey)
-                {
-                    LocalContentId = ffxivPlugin.DataRepository.GetCurrentPlayerID(),
-                };
-
+                _universalisPacketProcessor = new PacketProcessor(ApiKey);
                 _universalisPacketProcessor.Log += (_, message) => Log(message);
-                _universalisPacketProcessor.LocalContentIdUpdated += (_, cid) => LastSavedContentId = (long)cid;
-                _universalisPacketProcessor.LocalContentId = (ulong)LastSavedContentId;
 
                 var subs = FFXIVPlugin.GetType().GetProperty(nameof(FFXIV_ACT_Plugin.FFXIV_ACT_Plugin.DataSubscription))?.GetValue(FFXIVPlugin, null);
                 if (subs == null)

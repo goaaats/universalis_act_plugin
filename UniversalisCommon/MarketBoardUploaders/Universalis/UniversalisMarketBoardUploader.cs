@@ -6,7 +6,6 @@ using Dalamud.Game.Network.MarketBoardUploaders.Universalis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Polly;
-using Polly.Timeout;
 using UniversalisCommon;
 
 namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
@@ -29,7 +28,7 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
             using var client = new WebClient();
 
             _packetProcessor.Log?.Invoke(this, "Starting Universalis upload.");
-            var uploader = _packetProcessor.LocalContentId;
+            var uploader = _packetProcessor.UploaderId;
 
             var listingsRequestObject = new UniversalisItemListingsUploadRequest
             {
@@ -109,7 +108,7 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
             using var client = new WebClient();
             dynamic crafterNameObj = new JObject();
 
-            crafterNameObj.uploaderID = _packetProcessor.LocalContentId;
+            crafterNameObj.uploaderID = _packetProcessor.UploaderId;
             crafterNameObj.contentID = contentId;
             crafterNameObj.characterName = name;
 

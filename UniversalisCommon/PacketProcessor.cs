@@ -6,6 +6,7 @@ using Dalamud.Game.Network.Universalis.MarketBoardUploaders;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -23,15 +24,14 @@ namespace UniversalisCommon
         private IDictionary<short, Func<byte[], bool>> _packetHandlers;
 
         public uint CurrentWorldId { get; set; }
-        public ulong LocalContentId { get; set; }
+        public string UploaderId { get; }
 
         public EventHandler<string> Log;
-        public EventHandler<ulong> LocalContentIdUpdated;
-        public EventHandler RequestContentIdUpdate;
 
         public PacketProcessor(string apiKey)
         {
             _uploader = new UniversalisMarketBoardUploader(this, apiKey);
+            UploaderId = Guid.NewGuid().ToString().Replace("-", "");
 
             Initialize();
         }
@@ -54,7 +54,6 @@ namespace UniversalisCommon
                     _packetHandlers = new Dictionary<short, Func<byte[], bool>>
                     {
                         { definitions.PlayerSpawn, ProcessPlayerSpawn },
-                        { definitions.PlayerSetup, ProcessPlayerSetup },
                         { definitions.MarketBoardItemRequestStart, ProcessMarketBoardItemRequestStart },
                         { definitions.MarketBoardOfferings, ProcessMarketBoardOfferings },
                         { definitions.MarketBoardHistory, ProcessMarketBoardHistory },
@@ -80,7 +79,16 @@ namespace UniversalisCommon
             }
 
             var opcode = BitConverter.ToInt16(message, 0x12);
-            return _packetHandlers.TryGetValue(opcode, out var handler) && handler(message);
+            return _packetHandlers.TryGetValue(opcode, out var handler)
+                ? handler(message)
+                : HandleUnknownMessage(message);
+        }
+
+        private static bool HandleUnknownMessage(byte[] message)
+        {
+            var opcode = BitConverter.ToInt16(message, 0x12);
+            Trace.WriteLine($"{opcode}: {string.Join(" ", message)}");
+            return false;
         }
 
         private bool ProcessContentIdNameMapResp(byte[] message)
@@ -111,7 +119,7 @@ namespace UniversalisCommon
 
             var request = new UniversalisTaxDataUploadRequest
             {
-                UploaderId = LocalContentId.ToString("X"),
+                UploaderId = UploaderId,
                 WorldId = CurrentWorldId,
                 TaxData = new UniversalisTaxData
                 {
@@ -160,9 +168,11 @@ namespace UniversalisCommon
             }
 
             request.History.AddRange(listing.HistoryListings);
+            request.HistoryReceived = true;
 
             Log?.Invoke(this, $"Added history for item#{listing.CatalogId}");
-            return false;
+
+            return request.IsDone && SendCurrentRequest(request);
         }
 
         private bool ProcessMarketBoardOfferings(byte[] message)
@@ -212,51 +222,42 @@ namespace UniversalisCommon
             Log?.Invoke(this,
                 $"Added {listing.ItemListings.Count} ItemListings to request#{request.ListingsRequestId}, now {request.Listings.Count}/{request.AmountToArrive}, item#{request.CatalogId}");
 
-            if (request.IsDone)
+            return request.IsDone && SendCurrentRequest(request);
+        }
+
+        private bool SendCurrentRequest(MarketBoardItemRequest request)
+        {
+            if (CurrentWorldId == 0)
             {
-                if (CurrentWorldId == 0)
-                {
-                    Log?.Invoke(this,
-                        "[ERROR] Not sure about your current world. Please move your character between zones once to start uploading.");
-                    return false;
-                }
-
-                RequestContentIdUpdate?.Invoke(this, null);
-
-                if (LocalContentId == 0)
-                {
-                    Log?.Invoke(this,
-                        "[ERROR] Not sure about your character information. Please log in once with your character while having the program open to verify it.");
-                    //return false;
-                }
-
-                LocalContentIdUpdated?.Invoke(this, LocalContentId);
-
                 Log?.Invoke(this,
-                    $"Market Board request finished, starting upload: request#{request.ListingsRequestId} item#{request.CatalogId} amount#{request.AmountToArrive}");
-                try
-                {
-                    _uploader.Upload(request);
-                    Log?.Invoke(this, "Market Board data upload completed.");
-                    return true;
-                }
-                catch (WebException ex) when (ex.Response is HttpWebResponse res && (int)res.StatusCode >= 500)
-                {
-                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed due to a server error:\n{ex.Message}");
-                }
-                catch (WebException ex) when (ex.Response is HttpWebResponse res && (int)res.StatusCode >= 400 &&
-                                              (int)res.StatusCode < 500)
-                {
-                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed due to a client error:\n{ex.Message}");
-                }
-                catch (WebException ex)
-                {
-                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed:\n{ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Log?.Invoke(this, $"[ERROR] Market Board data upload failed:\n{ex}");
-                }
+                    "[ERROR] Not sure about your current world. Please move your character between zones once to start uploading.");
+                return false;
+            }
+
+            Log?.Invoke(this,
+                $"Market Board request finished, starting upload: request#{request.ListingsRequestId} item#{request.CatalogId} amount#{request.AmountToArrive}");
+            try
+            {
+                _uploader.Upload(request);
+                Log?.Invoke(this, "Market Board data upload completed.");
+                return true;
+            }
+            catch (WebException ex) when (ex.Response is HttpWebResponse res && (int)res.StatusCode >= 500)
+            {
+                Log?.Invoke(this, $"[ERROR] Market Board data upload failed due to a server error:\n{ex.Message}");
+            }
+            catch (WebException ex) when (ex.Response is HttpWebResponse res && (int)res.StatusCode >= 400 &&
+                                          (int)res.StatusCode < 500)
+            {
+                Log?.Invoke(this, $"[ERROR] Market Board data upload failed due to a client error:\n{ex.Message}");
+            }
+            catch (WebException ex)
+            {
+                Log?.Invoke(this, $"[ERROR] Market Board data upload failed:\n{ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Log?.Invoke(this, $"[ERROR] Market Board data upload failed:\n{ex}");
             }
 
             return false;
@@ -276,14 +277,6 @@ namespace UniversalisCommon
             });
 
             Log?.Invoke(this, $"NEW MB REQUEST START: item#{catalogId} amount#{amount}");
-            return false;
-        }
-
-        private bool ProcessPlayerSetup(byte[] message)
-        {
-            LocalContentId = BitConverter.ToUInt64(message, 0x20);
-            Log?.Invoke(this, $"New CID: {LocalContentId:X}");
-            LocalContentIdUpdated?.Invoke(this, LocalContentId);
             return false;
         }
 
