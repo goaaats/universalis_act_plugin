@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Dalamud.Game.Network.MarketBoardUploaders.Universalis
 {
-    class UniversalisItemListingsUploadRequest
+    class UniversalisMarketBoardUploadRequest
     {
         [JsonProperty("worldID")]
         public int WorldId { get; set; }
@@ -18,6 +18,9 @@ namespace Dalamud.Game.Network.MarketBoardUploaders.Universalis
 
         [JsonProperty("listings")]
         public List<UniversalisItemListingsEntry> Listings { get; set; }
+
+        [JsonProperty("entries")]
+        public List<UniversalisHistoryEntry> Entries { get; set; }
 
         [JsonProperty("uploaderID")]
         public string UploaderId { get; set; }
