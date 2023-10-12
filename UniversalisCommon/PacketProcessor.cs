@@ -6,6 +6,7 @@ using Dalamud.Game.Network.Universalis.MarketBoardUploaders;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -23,7 +24,7 @@ namespace UniversalisCommon
         private IDictionary<short, Func<byte[], bool>> _packetHandlers;
 
         public uint CurrentWorldId { get; set; }
-        public string UploaderId { get; set; }
+        public string UploaderId { get; }
 
         public EventHandler<string> Log;
 
@@ -78,7 +79,16 @@ namespace UniversalisCommon
             }
 
             var opcode = BitConverter.ToInt16(message, 0x12);
-            return _packetHandlers.TryGetValue(opcode, out var handler) && handler(message);
+            return _packetHandlers.TryGetValue(opcode, out var handler)
+                ? handler(message)
+                : HandleUnknownMessage(message);
+        }
+
+        private static bool HandleUnknownMessage(byte[] message)
+        {
+            var opcode = BitConverter.ToInt16(message, 0x12);
+            Trace.WriteLine($"{opcode}: {string.Join(" ", message)}");
+            return false;
         }
 
         private bool ProcessContentIdNameMapResp(byte[] message)

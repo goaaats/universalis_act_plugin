@@ -1,7 +1,5 @@
 ﻿using Machina.FFXIV;
-using Machina.Infrastructure;
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -26,8 +24,6 @@ namespace UniversalisStandaloneUploader
         public UploaderForm()
         {
             InitializeComponent();
-
-            winPCapCheckBox.Checked = Settings.Default.UseWinPCap;
 
             try
             {
@@ -151,13 +147,6 @@ namespace UniversalisStandaloneUploader
             _ffxivNetworkMonitor.MessageReceivedEventHandler += (_, _, message) =>
                 _packetProcessor?.ProcessZonePacket(message);
 
-            _ffxivNetworkMonitor.MonitorType = NetworkMonitorType.RawSocket;
-
-            if (winPCapCheckBox.Checked)
-            {
-                _ffxivNetworkMonitor.MonitorType = NetworkMonitorType.WinPCap;
-            }
-
             var window = FindWindow("FFXIVGAME", null);
             if (window == IntPtr.Zero)
             {
@@ -169,9 +158,8 @@ namespace UniversalisStandaloneUploader
                 return;
             }
 
-            var proc = Process.GetProcessById(Convert.ToInt32(pid));
-            var gamePath = proc.MainModule?.FileName;
-            _ffxivNetworkMonitor.OodlePath = gamePath;
+            _ffxivNetworkMonitor.ProcessID = pid;
+            _ffxivNetworkMonitor.UseDeucalion = true;
 
             _ffxivNetworkMonitor.Start();
             InitializedCapture = true;
@@ -197,21 +185,6 @@ namespace UniversalisStandaloneUploader
                 e.Cancel = true;
                 Hide();
                 ShowTrayIcon();
-            }
-        }
-
-        private void WinPCapCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            Settings.Default.UseWinPCap = winPCapCheckBox.Checked;
-            Settings.Default.Save();
-
-            try
-            {
-                InitializeNetworkMonitor();
-            }
-            catch (Exception ex)
-            {
-                Log($"[ERROR] Could not re-initialize network monitor:\n{ex}");
             }
         }
 

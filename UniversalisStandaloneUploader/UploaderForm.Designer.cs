@@ -39,7 +39,6 @@ namespace UniversalisStandaloneUploader
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.logTextBox = new System.Windows.Forms.RichTextBox();
-            this.winPCapCheckBox = new System.Windows.Forms.CheckBox();
             this.trayIconMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -96,23 +95,11 @@ namespace UniversalisStandaloneUploader
             this.logTextBox.TabIndex = 2;
             this.logTextBox.Text = "";
             // 
-            // winPCapCheckBox
-            // 
-            this.winPCapCheckBox.AutoSize = true;
-            this.winPCapCheckBox.Location = new System.Drawing.Point(12, 301);
-            this.winPCapCheckBox.Name = "winPCapCheckBox";
-            this.winPCapCheckBox.Size = new System.Drawing.Size(93, 17);
-            this.winPCapCheckBox.TabIndex = 3;
-            this.winPCapCheckBox.Text = "Use WinPCap";
-            this.winPCapCheckBox.UseVisualStyleBackColor = true;
-            this.winPCapCheckBox.CheckedChanged += new System.EventHandler(this.WinPCapCheckBox_CheckedChanged);
-            // 
             // UploaderForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(441, 325);
-            this.Controls.Add(this.winPCapCheckBox);
             this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.pictureBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -138,7 +125,6 @@ namespace UniversalisStandaloneUploader
         private ToolStripMenuItem exitToolStripMenuItem;
         private PictureBox pictureBox1;
         private RichTextBox logTextBox;
-        private CheckBox winPCapCheckBox;
     }
 }
 
