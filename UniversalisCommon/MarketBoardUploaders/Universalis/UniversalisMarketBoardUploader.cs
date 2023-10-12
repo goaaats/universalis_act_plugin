@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using Dalamud.Game.Network.MarketBoardUploaders;
 using Dalamud.Game.Network.MarketBoardUploaders.Universalis;
@@ -30,12 +31,13 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
             _packetProcessor.Log?.Invoke(this, "Starting Universalis upload.");
             var uploader = _packetProcessor.UploaderId;
 
-            var listingsRequestObject = new UniversalisItemListingsUploadRequest
+            var uploadRequest = new UniversalisMarketBoardUploadRequest
             {
                 WorldId = (int)_packetProcessor.CurrentWorldId,
                 UploaderId = uploader,
                 ItemId = request.CatalogId,
                 Listings = new List<UniversalisItemListingsEntry>(),
+                Entries = new List<UniversalisHistoryEntry>(),
             };
 
             foreach (var marketBoardItemListing in request.Listings)
@@ -64,22 +66,11 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                         SlotId = itemMateria.Index,
                     });
 
-                listingsRequestObject.Listings.Add(universalisListing);
+                uploadRequest.Listings.Add(universalisListing);
             }
 
-            client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-            SubmitData(client, listingsRequestObject);
-
-            var historyRequestObject = new UniversalisHistoryUploadRequest
-            {
-                WorldId = (int)_packetProcessor.CurrentWorldId,
-                UploaderId = uploader,
-                ItemId = request.CatalogId,
-                Entries = new List<UniversalisHistoryEntry>(),
-            };
-
             foreach (var marketBoardHistoryListing in request.History)
-                historyRequestObject.Entries.Add(new UniversalisHistoryEntry
+                uploadRequest.Entries.Add(new UniversalisHistoryEntry
                 {
                     BuyerName = marketBoardHistoryListing.BuyerName,
                     Hq = marketBoardHistoryListing.IsHq,
@@ -90,10 +81,10 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                 });
 
             client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-            SubmitData(client, historyRequestObject);
+            SubmitData(client, uploadRequest);
 
             _packetProcessor.Log?.Invoke(this,
-                $"Universalis data upload for item#{request.CatalogId} to world#{historyRequestObject.WorldId} completed.");
+                $"Universalis data upload for item#{request.CatalogId} to world#{uploadRequest.WorldId} completed.");
         }
 
         public void UploadTaxRates(UniversalisTaxDataUploadRequest taxRatesRequest)
@@ -130,7 +121,9 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
 
         private void UploadData<T>(WebClient client, T data)
         {
-            client.UploadString(ApiBase + $"/upload/{_apiKey}", "POST", JsonConvert.SerializeObject(data));
+            var requestStr = JsonConvert.SerializeObject(data);
+            Trace.WriteLine(requestStr);
+            client.UploadString(ApiBase + $"/upload/{_apiKey}", "POST", requestStr);
         }
     }
 }

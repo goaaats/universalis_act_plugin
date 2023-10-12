@@ -6,7 +6,6 @@ using Dalamud.Game.Network.Universalis.MarketBoardUploaders;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -79,16 +78,7 @@ namespace UniversalisCommon
             }
 
             var opcode = BitConverter.ToInt16(message, 0x12);
-            return _packetHandlers.TryGetValue(opcode, out var handler)
-                ? handler(message)
-                : HandleUnknownMessage(message);
-        }
-
-        private static bool HandleUnknownMessage(byte[] message)
-        {
-            var opcode = BitConverter.ToInt16(message, 0x12);
-            Trace.WriteLine($"{opcode}: {string.Join(" ", message)}");
-            return false;
+            return _packetHandlers.TryGetValue(opcode, out var handler) && handler(message);
         }
 
         private bool ProcessContentIdNameMapResp(byte[] message)
