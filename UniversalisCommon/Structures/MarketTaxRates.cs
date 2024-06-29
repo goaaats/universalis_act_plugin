@@ -45,6 +45,11 @@ namespace Dalamud.Game.Network.Structures
         public uint SharlayanTax { get; private set; }
 
         /// <summary>
+        /// Gets the tax rate in Tuliyollal.
+        /// </summary>
+        public uint TuliyollalTax { get; private set; }
+
+        /// <summary>
         /// Read a <see cref="MarketTaxRates"/> object from memory.
         /// </summary>
         /// <param name="message">Data to read.</param>
@@ -67,6 +72,10 @@ namespace Dalamud.Game.Network.Structures
             output.KuganeTax = reader.ReadUInt32();
             output.CrystariumTax = reader.ReadUInt32();
             output.SharlayanTax = reader.ReadUInt32();
+            output.TuliyollalTax = reader.ReadUInt32();
+
+            // ValidUntil (time32_t, not yet supported)
+            reader.ReadUInt32();
 
             return output;
         }

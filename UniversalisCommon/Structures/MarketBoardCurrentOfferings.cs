@@ -62,20 +62,18 @@ namespace Dalamud.Game.Network.Structures
                     TotalTax = reader.ReadUInt32(),
                     ItemQuantity = reader.ReadUInt32(),
                     CatalogId = reader.ReadUInt32(),
-                    LastReviewTime = DateTimeOffset.UtcNow.AddSeconds(-reader.ReadUInt16()).DateTime,
+                    // Removed in 7.0
+                    LastReviewTime = DateTime.UtcNow,
                 };
 
-                reader.ReadUInt16(); // container
-                reader.ReadUInt32(); // slot
+                reader.ReadUInt16(); // retainer slot
                 reader.ReadUInt16(); // durability
                 reader.ReadUInt16(); // spiritbond
 
                 listingEntry.Materia = new List<MarketBoardItemListing.ItemMateria>();
-
                 for (var materiaIndex = 0; materiaIndex < 5; materiaIndex++)
                 {
                     var materiaVal = reader.ReadUInt16();
-
                     var materiaEntry = new MarketBoardItemListing.ItemMateria
                     {
                         MateriaId = (materiaVal & 0xFF0) >> 4,
@@ -83,25 +81,33 @@ namespace Dalamud.Game.Network.Structures
                     };
 
                     if (materiaEntry.MateriaId != 0)
+                    {
                         listingEntry.Materia.Add(materiaEntry);
+                    }
                 }
 
+                // 6 bytes of padding
                 reader.ReadUInt16();
                 reader.ReadUInt32();
 
                 listingEntry.RetainerName = Encoding.UTF8.GetString(reader.ReadBytes(32)).TrimEnd('\u0000');
+
+                // Empty as of 7.0
                 listingEntry.PlayerName = Encoding.UTF8.GetString(reader.ReadBytes(32)).TrimEnd('\u0000');
+
                 listingEntry.IsHq = reader.ReadBoolean();
                 listingEntry.MateriaCount = reader.ReadByte();
                 listingEntry.OnMannequin = reader.ReadBoolean();
                 listingEntry.RetainerCityId = reader.ReadByte();
                 listingEntry.StainId = reader.ReadUInt16();
 
-                reader.ReadUInt16();
+                // 4 bytes of padding
                 reader.ReadUInt32();
 
                 if (listingEntry.CatalogId != 0)
+                {
                     output.ItemListings.Add(listingEntry);
+                }
             }
 
             output.ListingIndexEnd = reader.ReadByte();

@@ -8,7 +8,6 @@ namespace Dalamud.Game.Network.Structures
     public class MarketBoardHistory
     {
         public uint CatalogId;
-        public uint CatalogId2;
 
         public class MarketBoardHistoryListing
         {
@@ -17,10 +16,7 @@ namespace Dalamud.Game.Network.Structures
             public uint Quantity;
             public bool IsHq;
             public bool OnMannequin;
-
             public string BuyerName;
-
-            public uint CatalogId;
         }
 
         public List<MarketBoardHistoryListing> HistoryListings;
@@ -30,39 +26,36 @@ namespace Dalamud.Game.Network.Structures
             using var stream = new MemoryStream(message);
             using var reader = new BinaryReader(stream);
 
+            var itemId = reader.ReadUInt32();
             var output = new MarketBoardHistory
             {
-                CatalogId = reader.ReadUInt32(),
-                CatalogId2 = reader.ReadUInt32(),
+                CatalogId = itemId,
                 HistoryListings = new List<MarketBoardHistoryListing>(),
             };
 
-            if (output.CatalogId2 == 0)
-            {
-                // No sales for this item yet
-                return output;
-            }
-
             for (var i = 0; i < 20; i++)
             {
+                var salePrice = reader.ReadUInt32();
+                if (salePrice == 0)
+                {
+                    // No additional sales for this item
+                    break;
+                }
+
                 var listingEntry = new MarketBoardHistoryListing
                 {
-                    SalePrice = reader.ReadUInt32(),
+                    SalePrice = salePrice,
                     PurchaseTime = DateTimeOffset.FromUnixTimeSeconds(reader.ReadUInt32()).UtcDateTime,
                     Quantity = reader.ReadUInt32(),
                     IsHq = reader.ReadBoolean(),
+                    OnMannequin = reader.ReadBoolean(),
+                    BuyerName = Encoding.UTF8.GetString(reader.ReadBytes(32)).TrimEnd('\u0000'),
                 };
 
-                reader.ReadBoolean();
-
-                listingEntry.OnMannequin = reader.ReadBoolean();
-                listingEntry.BuyerName = Encoding.UTF8.GetString(reader.ReadBytes(33)).TrimEnd('\u0000');
-                listingEntry.CatalogId = reader.ReadUInt32();
+                // Read padding
+                reader.ReadUInt16();
 
                 output.HistoryListings.Add(listingEntry);
-
-                if (listingEntry.CatalogId == 0)
-                    break;
             }
 
             return output;

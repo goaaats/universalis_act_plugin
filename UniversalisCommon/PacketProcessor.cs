@@ -101,7 +101,6 @@ namespace UniversalisCommon
         private bool ProcessMarketTaxRates(byte[] message)
         {
             var taxRates = MarketTaxRates.Read(message.Skip(0x20).ToArray());
-
             if (taxRates.Category != 0xb0009)
             {
                 return false;
@@ -120,6 +119,7 @@ namespace UniversalisCommon
                     Kugane = taxRates.KuganeTax,
                     Crystarium = taxRates.CrystariumTax,
                     Sharlayan = taxRates.SharlayanTax,
+                    Tuliyollal = taxRates.TuliyollalTax,
                 },
             };
 
@@ -139,16 +139,19 @@ namespace UniversalisCommon
 
         private bool ProcessMarketBoardHistory(byte[] message)
         {
-            var listing = MarketBoardHistory.Read(message.Skip(0x20).ToArray());
+            var history = MarketBoardHistory.Read(message.Skip(0x20).ToArray());
+            var itemId = history.CatalogId;
 
-            var request = _marketBoardRequests.LastOrDefault(r => r.CatalogId == listing.CatalogId);
-
+            var request = _marketBoardRequests.LastOrDefault(r => r.IsNew || r.CatalogId == itemId && !r.IsDone);
             if (request == null)
             {
                 Log?.Invoke(this,
-                    $"[ERROR] Market Board data arrived without a corresponding request: item#{listing.CatalogId}");
+                    $"[ERROR] Market Board history arrived without a corresponding request: item#{itemId}");
                 return false;
             }
+
+            // Detect the request's item ID from the history packet
+            request.CatalogId = itemId;
 
             if (request.ListingsRequestId != -1)
             {
@@ -157,40 +160,41 @@ namespace UniversalisCommon
                 return false;
             }
 
-            request.History.AddRange(listing.HistoryListings);
+            request.History.AddRange(history.HistoryListings);
             request.HistoryReceived = true;
 
-            Log?.Invoke(this, $"Added history for item#{listing.CatalogId}");
+            Log?.Invoke(this, $"Added history for item#{history.CatalogId}");
 
             return request.IsDone && SendCurrentRequest(request);
         }
 
         private bool ProcessMarketBoardOfferings(byte[] message)
         {
-            var listing = MarketBoardCurrentOfferings.Read(message.Skip(0x20).ToArray());
+            var listings = MarketBoardCurrentOfferings.Read(message.Skip(0x20).ToArray());
+            var itemId = listings.ItemListings[0].CatalogId;
 
-            var request =
-                _marketBoardRequests.LastOrDefault(
-                    r => r.CatalogId == listing.ItemListings[0].CatalogId && !r.IsDone);
-
+            var request = _marketBoardRequests.LastOrDefault(r => r.IsNew || r.CatalogId == itemId && !r.IsDone);
             if (request == null)
             {
                 Log?.Invoke(this,
-                    $"[ERROR] Market Board data arrived without a corresponding request: item#{listing.ItemListings[0].CatalogId}");
+                    $"[ERROR] Market Board listings arrived without a corresponding request: item#{itemId}");
                 return false;
             }
 
-            if (request.Listings.Count + listing.ItemListings.Count > request.AmountToArrive)
+            // Detect the request's item ID from the first listing
+            request.CatalogId = itemId;
+
+            if (request.Listings.Count + listings.ItemListings.Count > request.AmountToArrive)
             {
                 Log?.Invoke(this,
-                    $"[ERROR] Too many Market Board listings received for request: {request.Listings.Count + listing.ItemListings.Count} > {request.AmountToArrive} item#{listing.ItemListings[0].CatalogId}");
+                    $"[ERROR] Too many Market Board listings received for request: {request.Listings.Count + listings.ItemListings.Count} > {request.AmountToArrive} item#{listings.ItemListings[0].CatalogId}");
                 return false;
             }
 
-            if (request.ListingsRequestId != -1 && request.ListingsRequestId != listing.RequestId)
+            if (request.ListingsRequestId != -1 && request.ListingsRequestId != listings.RequestId)
             {
                 Log?.Invoke(this,
-                    $"[ERROR] Non-matching RequestIds for Market Board data request: {request.ListingsRequestId}, {listing.RequestId}");
+                    $"[ERROR] Non-matching RequestIds for Market Board data request: {request.ListingsRequestId}, {listings.RequestId}");
                 return false;
             }
 
@@ -203,14 +207,14 @@ namespace UniversalisCommon
 
             if (request.ListingsRequestId == -1)
             {
-                request.ListingsRequestId = listing.RequestId;
-                Log?.Invoke(this, $"First Market Board packet in sequence: {listing.RequestId}");
+                request.ListingsRequestId = listings.RequestId;
+                Log?.Invoke(this, $"First Market Board packet in sequence: {listings.RequestId}");
             }
 
-            request.Listings.AddRange(listing.ItemListings);
+            request.Listings.AddRange(listings.ItemListings);
 
             Log?.Invoke(this,
-                $"Added {listing.ItemListings.Count} ItemListings to request#{request.ListingsRequestId}, now {request.Listings.Count}/{request.AmountToArrive}, item#{request.CatalogId}");
+                $"Added {listings.ItemListings.Count} ItemListings to request#{request.ListingsRequestId}, now {request.Listings.Count}/{request.AmountToArrive}, item#{request.CatalogId}");
 
             return request.IsDone && SendCurrentRequest(request);
         }
@@ -255,24 +259,33 @@ namespace UniversalisCommon
 
         private bool ProcessMarketBoardItemRequestStart(byte[] message)
         {
-            var catalogId = (uint)BitConverter.ToInt32(message, 0x20);
-            var amount = message[0x2B];
+            var status = BitConverter.ToUInt32(message, 0x20);
+            if (status == 0x70000003)
+            {
+                Log?.Invoke(this, "Client is currently rate limited by the game server.");
+                return false;
+            }
 
+            var amount = BitConverter.ToInt32(message, 0x24);
             _marketBoardRequests.Add(new MarketBoardItemRequest
             {
-                CatalogId = catalogId,
                 AmountToArrive = amount,
                 Listings = new List<MarketBoardCurrentOfferings.MarketBoardItemListing>(),
                 History = new List<MarketBoardHistory.MarketBoardHistoryListing>(),
             });
 
-            Log?.Invoke(this, $"NEW MB REQUEST START: item#{catalogId} amount#{amount}");
+            Log?.Invoke(this, $"NEW MB REQUEST START: Expecting {amount} listings");
             return false;
         }
 
         private bool ProcessPlayerSpawn(byte[] message)
         {
-            CurrentWorldId = BitConverter.ToUInt16(message, 0x24);
+            var worldId = BitConverter.ToUInt16(message, 0x34);
+            if (worldId != CurrentWorldId)
+            {
+                CurrentWorldId = worldId;
+                Log?.Invoke(this, $"Current world detected, set to world#{worldId}");
+            }
 
             return false;
         }
