@@ -55,7 +55,6 @@
 	<ItemGroup>
 	  <PackageReference Include="Costura.Fody" Version="5.7.0">
 	    <PrivateAssets>all</PrivateAssets>
-	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
 	  <PackageReference Include="Machina.FFXIV" Version="2.3.9.7" />
 	</ItemGroup>

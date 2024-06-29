@@ -6,7 +6,7 @@ namespace Dalamud.Game.Network
     class MarketBoardItemRequest
     {
         public uint CatalogId { get; set; }
-        public byte AmountToArrive { get; set; }
+        public int AmountToArrive { get; set; }
         public bool HistoryReceived { get; set; }
 
         public List<MarketBoardCurrentOfferings.MarketBoardItemListing> Listings { get; set; }
@@ -15,5 +15,7 @@ namespace Dalamud.Game.Network
         public int ListingsRequestId { get; set; } = -1;
 
         public bool IsDone => Listings.Count == AmountToArrive && HistoryReceived;
+
+        public bool IsNew => CatalogId == 0 && !IsDone;
     }
 }
