@@ -17,6 +17,8 @@ namespace UniversalisCommon
 {
     public class PacketProcessor
     {
+        private const int MessageHeaderSize = 0x20;
+
         private readonly List<MarketBoardItemRequest> _marketBoardRequests = new List<MarketBoardItemRequest>();
         private readonly IMarketBoardUploader _uploader;
 
@@ -74,6 +76,13 @@ namespace UniversalisCommon
         {
             if (_packetHandlers == null)
             {
+                return false;
+            }
+
+            if (message.Length < MessageHeaderSize)
+            {
+                Log?.Invoke(this,
+                    $"[WARN] Received message with length {message.Length}, expected at least {MessageHeaderSize} bytes");
                 return false;
             }
 
