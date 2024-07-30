@@ -11,7 +11,7 @@ fetch(opcodesUrl)
     .then((res) => res.json())
     .then((res) => res.find((regionLists) => regionLists.region === 'Global').lists)
     .then((lists) => ({
-        ClientTrigger: getOpcode(lists.ClientZoneIpcType, 'ClientTrigger'),
+        ClientTrigger: -1,
         PlayerSpawn: getOpcode(lists.ServerZoneIpcType, 'PlayerSpawn'),
         PlayerSetup: getOpcode(lists.ServerZoneIpcType, 'PlayerSetup'),
         ItemMarketBoardInfo: getOpcode(lists.ServerZoneIpcType, 'ItemMarketBoardInfo'),
