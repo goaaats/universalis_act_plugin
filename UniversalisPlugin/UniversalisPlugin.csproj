@@ -9,6 +9,7 @@
 		<Product>Universalis ACT plugin</Product>
 		<LangVersion>9.0</LangVersion>
 		<Description>ACT plugin that automatically uploads market board data to universalis.app</Description>
+		<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -21,6 +22,7 @@
 		<PackageReference Include="Costura.Fody" Version="5.7.0">
 		  <PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+		<PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
