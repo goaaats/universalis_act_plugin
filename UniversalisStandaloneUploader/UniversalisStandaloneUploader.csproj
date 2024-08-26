@@ -9,6 +9,7 @@
 		<StartupObject>UniversalisStandaloneUploader.Program</StartupObject>
 		<Company>Universalis</Company>
 		<Authors>Universalis</Authors>
+		<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -57,6 +58,7 @@
 	    <PrivateAssets>all</PrivateAssets>
 	  </PackageReference>
 	  <PackageReference Include="Machina.FFXIV" Version="2.3.9.7" />
+	  <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
 	</ItemGroup>
 
 </Project>
