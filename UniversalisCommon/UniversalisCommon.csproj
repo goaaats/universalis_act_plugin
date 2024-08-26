@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net48</TargetFramework>
-		<Version>1.6.1.0</Version>
+		<Version>1.6.2.0</Version>
 		<LangVersion>8.0</LangVersion>
 		<Company>Universalis</Company>
 		<Authors>Universalis</Authors>

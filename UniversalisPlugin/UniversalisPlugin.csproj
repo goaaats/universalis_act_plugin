@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net48</TargetFramework>
-		<Version>1.6.1.0</Version>
+		<Version>1.6.2.0</Version>
 		<ApplicationIcon>dalamud_icon.ico</ApplicationIcon>
 		<Company>goatsoft</Company>
 		<Authors>Universalis</Authors>

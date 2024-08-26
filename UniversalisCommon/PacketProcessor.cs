@@ -81,8 +81,6 @@ namespace UniversalisCommon
 
             if (message.Length < MessageHeaderSize)
             {
-                Log?.Invoke(this,
-                    $"[WARN] Received message with length {message.Length}, expected at least {MessageHeaderSize} bytes");
                 return false;
             }
 
