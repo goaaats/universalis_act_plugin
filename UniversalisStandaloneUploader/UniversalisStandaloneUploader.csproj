@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net48</TargetFramework>
-		<Version>1.6.2.0</Version>
+		<Version>1.6.3.0</Version>
 		<LangVersion>9.0</LangVersion>
 		<ApplicationIcon>dalamud_icon.ico</ApplicationIcon>
 		<StartupObject>UniversalisStandaloneUploader.Program</StartupObject>
@@ -57,8 +57,8 @@
 	  <PackageReference Include="Costura.Fody" Version="5.7.0">
 	    <PrivateAssets>all</PrivateAssets>
 	  </PackageReference>
-	  <PackageReference Include="Machina.FFXIV" Version="2.3.9.8" />
-	  <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+	  <PackageReference Include="Machina.FFXIV" Version="2.4.0.8" />
+	  <PackageReference Include="System.Resources.Extensions" Version="9.0.0" />
 	</ItemGroup>
 
 </Project>

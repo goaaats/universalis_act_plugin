@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net48</TargetFramework>
-		<Version>1.6.2.0</Version>
+		<Version>1.6.3.0</Version>
 		<LangVersion>8.0</LangVersion>
 		<Company>Universalis</Company>
 		<Authors>Universalis</Authors>
@@ -15,9 +15,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AsyncAwaitBestPractices" Version="8.0.0" />
+		<PackageReference Include="AsyncAwaitBestPractices" Version="9.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Polly" Version="8.4.1" />
+		<PackageReference Include="Polly" Version="8.5.0" />
 	</ItemGroup>
 
 	<ItemGroup>
