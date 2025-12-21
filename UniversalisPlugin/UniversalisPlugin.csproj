@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net48</TargetFramework>
-		<Version>1.6.3.0</Version>
+		<Version>1.6.4.0</Version>
 		<ApplicationIcon>dalamud_icon.ico</ApplicationIcon>
 		<Company>goatsoft</Company>
 		<Authors>Universalis</Authors>
@@ -19,10 +19,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Costura.Fody" Version="5.7.0">
+		<PackageReference Include="Costura.Fody" Version="6.0.0">
 		  <PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="System.Resources.Extensions" Version="9.0.0" />
+		<PackageReference Include="System.Resources.Extensions" Version="10.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
