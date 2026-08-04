@@ -173,9 +173,12 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                 return;
             }
 
+            // Add rejects a listing the snapshot already carries, and a second copy of one
+            // the API returned twice - which it does, so filtering against the snapshot
+            // alone would upload the same listing more than once.
             var present = new HashSet<ulong>(uploadRequest.Listings.Select(l => l.ListingId));
             var hidden = listings.ToObject<List<UniversalisItemListingsEntry>>(ListingSerializer)
-                .Where(l => l.RetainerId == retainerId && !present.Contains(l.ListingId))
+                .Where(l => l.RetainerId == retainerId && present.Add(l.ListingId))
                 .ToList();
             if (hidden.Count == 0)
             {
