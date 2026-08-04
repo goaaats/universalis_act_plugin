@@ -8,6 +8,8 @@ namespace UniversalisCommon
     {
         public short PlayerSpawn { get; set; }
         public short PlayerSetup { get; set; }
+        public short RetainerState { get; set; }
+        public short RetainerSummary { get; set; }
         public short MarketBoardItemRequestStart { get; set; }
         public short MarketBoardOfferings { get; set; }
         public short MarketBoardHistory { get; set; }

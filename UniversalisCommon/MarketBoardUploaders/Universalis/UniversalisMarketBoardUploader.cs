@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
+using System.Text;
 using Dalamud.Game.Network.MarketBoardUploaders;
 using Dalamud.Game.Network.MarketBoardUploaders.Universalis;
 using Newtonsoft.Json;
@@ -14,6 +16,12 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
     internal class UniversalisMarketBoardUploader : IMarketBoardUploader
     {
         private const string ApiBase = "https://universalis.app";
+        private const string UserAgent = "universalis_uploader";
+        private const int ReadTimeoutMs = 20000;
+
+        // sellerID and creatorID arrive null and will not convert to ulong.
+        private static readonly JsonSerializer ListingSerializer = JsonSerializer.Create(
+            new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
         private readonly PacketProcessor _packetProcessor;
         private readonly string _apiKey;
@@ -80,6 +88,11 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                     Timestamp = ((DateTimeOffset)marketBoardHistoryListing.PurchaseTime).ToUnixTimeSeconds(),
                 });
 
+            if (_packetProcessor.CurrentRetainerId is ulong retainerId)
+            {
+                RestoreHiddenListings(uploadRequest, retainerId);
+            }
+
             client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
             SubmitData(client, uploadRequest);
 
@@ -124,6 +137,71 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
             var requestStr = JsonConvert.SerializeObject(data);
             Trace.WriteLine(requestStr);
             client.UploadString(ApiBase + $"/upload/{_apiKey}", "POST", requestStr);
+        }
+
+        /// <summary>
+        /// A summoned retainer's listings are withheld from the price comparison window,
+        /// so a snapshot taken there reads as a removal for listings that are still live.
+        /// Restores them from Universalis' own rows: the game never tells a client what
+        /// listing IDs its listings were assigned, and a reconstructed ID would post as
+        /// an add and a remove rather than as a no-op.
+        /// </summary>
+        private void RestoreHiddenListings(UniversalisMarketBoardUploadRequest uploadRequest, ulong retainerId)
+        {
+            JToken listings;
+            try
+            {
+                // DownloadString otherwise decodes as ANSI and mangles retainer names.
+                using var client = new TimedWebClient { Encoding = Encoding.UTF8 };
+                client.Headers.Add(HttpRequestHeader.UserAgent, UserAgent);
+                var json = client.DownloadString(
+                    $"{ApiBase}/api/v2/{uploadRequest.WorldId}/{uploadRequest.ItemId}" +
+                    "?entries=0&statsWithin=0&fields=listings");
+                listings = JObject.Parse(json)["listings"];
+            }
+            catch (Exception ex)
+            {
+                _packetProcessor.Log?.Invoke(this,
+                    $"[WARN] Could not fetch listings for item#{uploadRequest.ItemId}; uploading unmodified:\n{ex.Message}");
+                return;
+            }
+
+            if (listings == null)
+            {
+                _packetProcessor.Log?.Invoke(this,
+                    $"[WARN] Listings response for item#{uploadRequest.ItemId} had no listings key; uploading unmodified.");
+                return;
+            }
+
+            var present = new HashSet<ulong>(uploadRequest.Listings.Select(l => l.ListingId));
+            var hidden = listings.ToObject<List<UniversalisItemListingsEntry>>(ListingSerializer)
+                .Where(l => l.RetainerId == retainerId && !present.Contains(l.ListingId))
+                .ToList();
+            if (hidden.Count == 0)
+            {
+                return;
+            }
+
+            uploadRequest.Listings.AddRange(hidden);
+            _packetProcessor.Log?.Invoke(this,
+                $"Restored {hidden.Count} hidden listing(s) for retainer#{retainerId} on item#{uploadRequest.ItemId}.");
+        }
+
+        /// <summary>
+        /// WebClient has no timeout property and defaults to 100 seconds.
+        /// </summary>
+        private class TimedWebClient : WebClient
+        {
+            protected override WebRequest GetWebRequest(Uri address)
+            {
+                var request = base.GetWebRequest(address);
+                if (request != null)
+                {
+                    request.Timeout = ReadTimeoutMs;
+                }
+
+                return request;
+            }
         }
     }
 }

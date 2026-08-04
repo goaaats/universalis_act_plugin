@@ -26,6 +26,7 @@ namespace UniversalisCommon
 
         public uint CurrentWorldId { get; set; }
         public string UploaderId { get; }
+        public ulong? CurrentRetainerId { get; private set; }
 
         public EventHandler<string> Log;
 
@@ -52,15 +53,31 @@ namespace UniversalisCommon
                 .ExecuteAsync(() => Task.Run(() =>
                 {
                     var definitions = Definitions.Get();
-                    _packetHandlers = new Dictionary<short, Func<byte[], bool>>
+                    var handlers = new (string Name, short Opcode, Func<byte[], bool> Handler)[]
                     {
-                        { definitions.PlayerSpawn, ProcessPlayerSpawn },
-                        { definitions.MarketBoardItemRequestStart, ProcessMarketBoardItemRequestStart },
-                        { definitions.MarketBoardOfferings, ProcessMarketBoardOfferings },
-                        { definitions.MarketBoardHistory, ProcessMarketBoardHistory },
-                        { definitions.MarketTaxRates, ProcessMarketTaxRates },
-                        { definitions.ContentIdNameMapResp, ProcessContentIdNameMapResp },
+                        (nameof(definitions.PlayerSpawn), definitions.PlayerSpawn, ProcessPlayerSpawn),
+                        (nameof(definitions.PlayerSetup), definitions.PlayerSetup, ClearRetainerContext),
+                        (nameof(definitions.RetainerState), definitions.RetainerState, ProcessRetainerState),
+                        (nameof(definitions.RetainerSummary), definitions.RetainerSummary, ClearRetainerContext),
+                        (nameof(definitions.MarketBoardItemRequestStart), definitions.MarketBoardItemRequestStart, ProcessMarketBoardItemRequestStart),
+                        (nameof(definitions.MarketBoardOfferings), definitions.MarketBoardOfferings, ProcessMarketBoardOfferings),
+                        (nameof(definitions.MarketBoardHistory), definitions.MarketBoardHistory, ProcessMarketBoardHistory),
+                        (nameof(definitions.MarketTaxRates), definitions.MarketTaxRates, ProcessMarketTaxRates),
+                        (nameof(definitions.ContentIdNameMapResp), definitions.ContentIdNameMapResp, ProcessContentIdNameMapResp),
                     };
+
+                    // An opcode the definitions file omits deserializes to 0, and two of
+                    // those collide, leaving the client with no handlers at all.
+                    var missing = handlers.Where(h => h.Opcode <= 0).Select(h => h.Name).ToList();
+                    if (missing.Count > 0)
+                    {
+                        Log?.Invoke(this,
+                            $"[WARN] Opcode definitions carry no {string.Join(", ", missing)}; those packets are ignored.");
+                    }
+
+                    _packetHandlers = handlers
+                        .Where(h => h.Opcode > 0)
+                        .ToDictionary(h => h.Opcode, h => h.Handler);
                 }))
                 .SafeFireAndForget(
                     continueOnCapturedContext: true,
@@ -282,6 +299,31 @@ namespace UniversalisCommon
             });
 
             Log?.Invoke(this, $"NEW MB REQUEST START: Expecting {amount} listings");
+            return false;
+        }
+
+        private bool ProcessRetainerState(byte[] message)
+        {
+            var retainerId = BitConverter.ToUInt64(message, 0x20);
+            if (retainerId != CurrentRetainerId)
+            {
+                CurrentRetainerId = retainerId;
+                Log?.Invoke(this, $"Retainer summoned: #{retainerId}");
+            }
+
+            return false;
+        }
+
+        private bool ClearRetainerContext(byte[] message)
+        {
+            if (CurrentRetainerId == null)
+            {
+                return false;
+            }
+
+            CurrentRetainerId = null;
+            Log?.Invoke(this, "No retainer summoned.");
+
             return false;
         }
 

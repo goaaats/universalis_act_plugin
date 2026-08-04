@@ -14,6 +14,8 @@ fetch(opcodesUrl)
         ClientTrigger: -1,
         PlayerSpawn: getOpcode(lists.ServerZoneIpcType, 'PlayerSpawn'),
         PlayerSetup: getOpcode(lists.ServerZoneIpcType, 'PlayerSetup'),
+        RetainerState: getOpcode(lists.ServerZoneIpcType, 'RetainerState'),
+        RetainerSummary: getOpcode(lists.ServerZoneIpcType, 'RetainerSummary'),
         ItemMarketBoardInfo: getOpcode(lists.ServerZoneIpcType, 'ItemMarketBoardInfo'),
         MarketBoardItemRequestStart: getOpcode(lists.ServerZoneIpcType, 'MarketBoardItemListingCount'),
         MarketBoardOfferings: getOpcode(lists.ServerZoneIpcType, 'MarketBoardItemListing'),
