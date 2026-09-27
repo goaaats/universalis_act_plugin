@@ -80,7 +80,8 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                     Timestamp = ((DateTimeOffset)marketBoardHistoryListing.PurchaseTime).ToUnixTimeSeconds(),
                 });
 
-            client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+            client.Encoding = System.Text.Encoding.UTF8;
+client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8";
             SubmitData(client, uploadRequest);
 
             _packetProcessor.Log?.Invoke(this,
@@ -90,7 +91,8 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
         public void UploadTaxRates(UniversalisTaxDataUploadRequest taxRatesRequest)
         {
             using var client = new WebClient();
-            client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+            client.Encoding = System.Text.Encoding.UTF8;
+client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8";
             SubmitData(client, taxRatesRequest);
         }
 
@@ -103,7 +105,8 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
             crafterNameObj.contentID = contentId;
             crafterNameObj.characterName = name;
 
-            client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+            client.Encoding = System.Text.Encoding.UTF8;
+client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8";
             SubmitData(client, crafterNameObj);
         }
 
