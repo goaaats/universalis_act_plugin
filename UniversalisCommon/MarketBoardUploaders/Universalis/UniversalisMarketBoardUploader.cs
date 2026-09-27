@@ -81,7 +81,7 @@ namespace Dalamud.Game.Network.Universalis.MarketBoardUploaders
                 });
 
             client.Encoding = System.Text.Encoding.UTF8;
-client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8";
+            client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8";
             SubmitData(client, uploadRequest);
 
             _packetProcessor.Log?.Invoke(this,
@@ -92,7 +92,7 @@ client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8
         {
             using var client = new WebClient();
             client.Encoding = System.Text.Encoding.UTF8;
-client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8";
+            client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8";
             SubmitData(client, taxRatesRequest);
         }
 
@@ -106,7 +106,7 @@ client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8
             crafterNameObj.characterName = name;
 
             client.Encoding = System.Text.Encoding.UTF8;
-client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8";
+            client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8";
             SubmitData(client, crafterNameObj);
         }
 
